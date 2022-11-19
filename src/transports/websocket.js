@@ -8,7 +8,7 @@ import { parse } from 'querystring';
 const portRange = [ 6463, 6472 ];
 
 export default class WSServer {
-  constructor(messageHandler, connectionHandler) { return new Promise(async res => {
+  constructor(messageHandler, connectionHandler) { return (async () => {
     this.messageHandler = messageHandler;
     this.connectionHandler = connectionHandler;
 
@@ -19,21 +19,22 @@ export default class WSServer {
 
     let http, wss;
     while (port <= portRange[1]) {
-      try {
-        log('trying port', port);
+      log('trying port', port);
 
+      if (await new Promise(res => {
         http = createServer();
         http.on('error', e => {
-          log('http error', e);
+          // log('http error', e);
 
           if (e.code === 'EADDRINUSE') {
             log(port, 'in use!');
+            res(false);
           }
         });
 
         wss = new WebSocketServer({ server: http });
         wss.on('error', e => {
-          log('wss error', e);
+          // log('wss error', e);
         });
 
         wss.on('connection', this.onConnection);
@@ -44,15 +45,14 @@ export default class WSServer {
           this.http = http;
           this.wss = wss;
 
-          res(this);
+          res(true);
         });
-      } catch (e) {
-        log('failed to start', e);
-      }
-
-      break;
+      })) break;
+      port++;
     }
-  }); }
+
+    return this;
+  })(); }
 
   onConnection(socket, req) {
     const params = parse(req.url.split('?')[1]);
