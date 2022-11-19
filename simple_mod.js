@@ -1,10 +1,24 @@
-await import('https://rawcdn.githack.com/GooseMod/defiant/4fe79bcbab94d6185467382df03ecf6e528234dc/index.js'); // run defiant
-const Webpack = await import('https://raw.githack.com/GooseMod/GooseMod/master/src/util/discord/webpackModules.js'); // load GM's Webpack
+let Dispatcher;
 
-const ws = new WebSocket('ws://localhost:1337'); // connect to arRPC bridge
+const ws = new WebSocket('ws://127.0.0.1:1337'); // connect to arRPC bridge
 ws.onmessage = x => {
   msg = JSON.parse(x.data);
   console.log(msg);
 
-  Webpack.common.FluxDispatcher.dispatch({ type: "LOCAL_ACTIVITY_UPDATE", ...msg }); // set RPC status
+  if (!Dispatcher) {
+    const cache = window.webpackChunkdiscord_app.push([[ Symbol() ], {}, x => x]).c;
+    window.webpackChunkdiscord_app.pop();
+
+    for (const id in cache) {
+      let mod = cache[id].exports;
+      mod = mod && (mod.Z ?? mod.ZP);
+
+      if (mod && mod.register && mod.wait) {
+        Dispatcher = mod;
+        break;
+      }
+    }
+  }
+
+  Dispatcher.dispatch({ type: "LOCAL_ACTIVITY_UPDATE", ...msg }); // set RPC status
 };
