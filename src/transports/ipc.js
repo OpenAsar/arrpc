@@ -3,6 +3,7 @@ const log = (...args) => console.log(`[${rgb(88, 101, 242, 'arRPC')} > ${rgb(254
 
 import { join } from 'path';
 import { platform, env } from 'process';
+import { unlinkSync } from 'fs';
 
 import { createServer, createConnection } from 'net';
 
@@ -141,7 +142,12 @@ const getAvailableSocket = async (tries = 0) => {
 
   log('checking', path);
 
-  if (await socketIsAvailable(socket)) return path;
+  if (await socketIsAvailable(socket)) {
+    if (platform !== 'win32') try { unlinkSync(path); } catch { }
+
+    return path;
+  }
+
   log(`not available, trying again (attempt ${tries + 1})`);
   return getAvailableSocket(tries + 1);
 };
