@@ -7,7 +7,7 @@ import { platform, env } from 'process';
 import { createServer, createConnection } from 'net';
 
 const SOCKET_PATH = platform === 'win32' ? '\\\\?\\pipe\\discord-ipc'
-  : join(process.env.XDG_RUNTIME_DIR || process.env.TMPDIR || process.env.TMP || process.env.TEMP || '/tmp', 'discord-ipc');
+  : join(env.XDG_RUNTIME_DIR || env.TMPDIR || env.TMP || env.TEMP || '/tmp', 'discord-ipc');
 
 const Types = {
   HANDSHAKE: 0,
