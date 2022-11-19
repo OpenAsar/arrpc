@@ -30,30 +30,31 @@ export default class RPCServer {
   async onMessage(socket, { cmd, args }) {
     switch (cmd) {
       case 'SET_ACTIVITY':
-        if (!socket.application) {
+        if (!socket.application) { // fetch info about application
           socket.application = await (await fetch(`https://discord.com/api/v9/oauth2/applications/${socket.clientId}/rpc`)).json();
           socket.application.assets = await (await fetch(`https://discord.com/api/v9/oauth2/applications/${socket.clientId}/assets`)).json();
           log('fetched app info for', socket.clientId, socket.application);
         }
 
-        const { activity, pid } = args;
+        const { activity, pid } = args; // translate given parameters into what discord dispatch expects
         const { buttons, timestamps, instance } = activity;
 
         const metadata = {};
         const extra = {};
-        if (buttons) {
+        if (buttons) { // map buttons into expected metadata
           metadata.button_urls = buttons.map(x => x.url);
           extra.buttons = buttons.map(x => x.label);
         }
 
-        if (timestamps) for (const x in timestamps) {
-          if (Date.now().toString().length - timestamps[x].toString().length > 2) timestamps[x] = Math.floor(1e3 * timestamps[x]);
+        if (timestamps) for (const x in timestamps) { // translate s -> ms timestamps
+          if (Date.now().toString().length - timestamps[x].toString().length > 2) timestamps[x] = Math.floor(1000 * timestamps[x]);
         }
 
+        // lookup assets to ids
         if (activity.assets?.large_image) activity.assets.large_image = lookupAsset(activity.assets.large_image, socket.application.assets);
         if (activity.assets?.small_image) activity.assets.small_image = lookupAsset(activity.assets.small_image, socket.application.assets);
 
-        Bridge.send({
+        Bridge.send({ // send to bridge
           activity: {
             name: socket.application.name,
             application_id: socket.application.id,

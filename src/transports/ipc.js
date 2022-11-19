@@ -10,7 +10,8 @@ import { createServer, createConnection } from 'net';
 const SOCKET_PATH = platform === 'win32' ? '\\\\?\\pipe\\discord-ipc'
   : join(env.XDG_RUNTIME_DIR || env.TMPDIR || env.TMP || env.TEMP || '/tmp', 'discord-ipc');
 
-const Types = {
+// enums for various constants
+const Types = { // types of packets
   HANDSHAKE: 0,
   FRAME: 1,
   CLOSE: 2,
@@ -18,13 +19,13 @@ const Types = {
   PONG: 4
 };
 
-const CloseCodes = {
+const CloseCodes = { // codes for closures
   CLOSE_NORMAL: 1000,
   CLOSE_UNSUPPORTED: 1003,
   CLOSE_ABNORMAL: 1006
 };
 
-const ErrorCodes = {
+const ErrorCodes = { // codes for errors
   INVALID_CLIENTID: 4000,
   INVALID_ORIGIN: 4001,
   RATELIMITED: 4002,
@@ -197,6 +198,7 @@ export default class IPCServer {
 
       const ver = params.v ?? 1;
       const clientId = params.client_id ?? '';
+      // encoding is always json for ipc
 
       if (ver !== 1) {
         log('unsupported version requested', ver);

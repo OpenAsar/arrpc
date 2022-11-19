@@ -5,7 +5,7 @@ import { WebSocketServer } from 'ws';
 import { createServer } from 'http';
 import { parse } from 'querystring';
 
-const portRange = [ 6463, 6472 ];
+const portRange = [ 6463, 6472 ]; // ports available/possible: 6463-6472
 
 export default class WSServer {
   constructor(messageHandler, connectionHandler) { return (async () => {
@@ -57,7 +57,7 @@ export default class WSServer {
   onConnection(socket, req) {
     const params = parse(req.url.split('?')[1]);
     const ver = parseInt(params.v ?? 1);
-    const encoding = params.encoding ?? 'json';
+    const encoding = params.encoding ?? 'json'; // json | etf (erlpack)
     const clientId = params.client_id ?? '';
 
     const origin = req.headers.origin ?? '';
