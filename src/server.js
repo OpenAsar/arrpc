@@ -7,7 +7,7 @@ import WSServer from "./transports/websocket.js";
 import * as Bridge from './bridge.js';
 
 const lookupAsset = (name, assets) => {
-  return assets.find(x => x.name === name)?.id;
+  return assets?.find(x => x.name === name)?.id;
 };
 
 export default class RPCServer {
