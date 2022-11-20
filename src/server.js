@@ -6,7 +6,7 @@ import { EventEmitter } from 'events';
 import IPCServer from "./transports/ipc.js";
 import WSServer from "./transports/websocket.js";
 
-
+let socketId = 0;
 export default class RPCServer extends EventEmitter {
   constructor() { super(); return (async () => {
     this.onConnection = this.onConnection.bind(this);
@@ -34,13 +34,16 @@ export default class RPCServer extends EventEmitter {
       }
     });
 
+    socket.socketId = socketId++;
+
     this.emit('connection', socket);
   }
 
   onClose(socket) {
     this.emit('activity', {
       activity: null,
-      pid: socket.lastPid
+      pid: socket.lastPid,
+      socketId: socket.socketId.toString()
     });
 
     this.emit('close', socket);
@@ -83,7 +86,8 @@ export default class RPCServer extends EventEmitter {
             ...activity,
             ...extra
           },
-          pid
+          pid,
+          socketId: socket.socketId.toString()
         });
 
         break;
