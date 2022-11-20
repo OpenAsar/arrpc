@@ -4,7 +4,9 @@ const log = (...args) => console.log(`[${rgb(88, 101, 242, 'arRPC')} > ${rgb(87,
 import { WebSocketServer } from 'ws';
 
 // basic bridge to pass info onto webapp
+let lastMsg;
 export const send = msg => {
+  lastMsg = msg;
   wss.clients.forEach(x => x.send(JSON.stringify(msg)));
 };
 
@@ -13,6 +15,8 @@ const wss = new WebSocketServer({ port });
 
 wss.on('connection', socket => {
   log('web connected');
+
+  if (lastMsg) send(lastMsg); // catch up newly connected
 
   socket.on('close', () => {
     log('web disconnected');
