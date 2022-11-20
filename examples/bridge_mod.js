@@ -1,3 +1,4 @@
+(() => {
 let Dispatcher, lookupAsset;
 
 const ws = new WebSocket('ws://127.0.0.1:1337'); // connect to arRPC bridge websocket
@@ -35,3 +36,4 @@ ws.onmessage = async x => {
 
   Dispatcher.dispatch({ type: "LOCAL_ACTIVITY_UPDATE", ...msg }); // set RPC status
 };
+})();
