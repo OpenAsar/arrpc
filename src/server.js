@@ -7,10 +7,6 @@ import IPCServer from "./transports/ipc.js";
 import WSServer from "./transports/websocket.js";
 
 
-const lookupAsset = (name, assets) => {
-  return assets?.find(x => x.name === name)?.id;
-};
-
 export default class RPCServer extends EventEmitter {
   constructor() { super(); return (async () => {
     this.onConnection = this.onConnection.bind(this);
@@ -59,10 +55,6 @@ export default class RPCServer extends EventEmitter {
         if (timestamps) for (const x in timestamps) { // translate s -> ms timestamps
           if (Date.now().toString().length - timestamps[x].toString().length > 2) timestamps[x] = Math.floor(1000 * timestamps[x]);
         }
-
-        // lookup assets to ids
-        if (activity.assets?.large_image) activity.assets.large_image = lookupAsset(activity.assets.large_image, socket.application.assets);
-        if (activity.assets?.small_image) activity.assets.small_image = lookupAsset(activity.assets.small_image, socket.application.assets);
 
         this.emit('activity', {
           activity: {
