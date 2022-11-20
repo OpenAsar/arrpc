@@ -20,22 +20,33 @@ Rich Presence (RPC) is the name for how some apps can talk to Discord desktop on
 
 ## Usage
 
-> **Note** |
-> **ArmCord** has arRPC specially integrated, just enable the option!
-
-### Server
+### Server (**REQUIRED**)
 1. Have latest (>=18) Node installed
 2. Clone GitHub repo
 3. `npm install`
 4. Run server with `node src`
 
-### Client
-
+### Web
 #### No Mods
-With Discord open, run the content of [`examples/bridge_mod.js`](examples/bridge_mod.js) in Console (Ctrl+Shift+I).
+With Discord open (and [the server running](#server-required)), run the content of [`examples/bridge_mod.js`](examples/bridge_mod.js) in Console (Ctrl+Shift+I).
 
 #### Vencord
-Just enable the `WebRichPresence (arRPC)` Vencord plugin!
+Just enable the `WebRichPresence (arRPC)` Vencord plugin (with the server running)!
+
+<details>
+<summary><h3>Custom Clients</h3></summary>
+
+#### ArmCord
+ArmCord has arRPC specially integrated, just enable the option in it's settings (server not required)!
+
+#### Webcord
+1. Disable the `Use built-in Content Security Policy` option in Advanced settings: ![image](https://user-images.githubusercontent.com/19228318/202926723-93b772fc-f37d-47d4-81fd-b11c5d4051e8.png)
+2. With Webcord open (and [the server running](#server-required)), run the content of [`examples/bridge_mod.js`](examples/bridge_mod.js) in the DevTools Console (Ctrl+Shift+I).
+</details>
+
+---
+
+Then just use apps with Discord RPC like normal and they *should* work!
 
 <br>
 
