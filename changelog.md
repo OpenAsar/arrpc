@@ -1,5 +1,8 @@
 # arRPC Changelog
 
+## v2.2.0 [20-11-2022]
+- Server: Move all looking up/fetching to client
+
 ## v2.1.0 [20-11-2022]
 - Server: Stop activites when app disconnects
 - Server: Added support for several apps shown at once (added `socketId`)
