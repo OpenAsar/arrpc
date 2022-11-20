@@ -11,6 +11,7 @@ export default class RPCServer extends EventEmitter {
   constructor() { super(); return (async () => {
     this.onConnection = this.onConnection.bind(this);
     this.onMessage = this.onMessage.bind(this);
+    this.onClose = this.onClose.bind(this);
 
     const handlers = {
       connection: this.onConnection,
