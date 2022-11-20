@@ -1,22 +1,25 @@
 const rgb = (r, g, b, msg) => `\x1b[38;2;${r};${g};${b}m${msg}\x1b[0m`;
 const log = (...args) => console.log(`[${rgb(88, 101, 242, 'arRPC')} > ${rgb(87, 242, 135, 'bridge')}]`, ...args);
 
+import { EventEmitter } from 'events';
+
 import IPCServer from "./transports/ipc.js";
 import WSServer from "./transports/websocket.js";
 
-import * as Bridge from './bridge.js';
 
 const lookupAsset = (name, assets) => {
   return assets?.find(x => x.name === name)?.id;
 };
 
-export default class RPCServer {
-  constructor() { return (async () => {
+export default class RPCServer extends EventEmitter {
+  constructor() { super(); return (async () => {
     this.onConnection = this.onConnection.bind(this);
     this.onMessage = this.onMessage.bind(this);
 
     this.ipc = await new IPCServer(this.onMessage, this.onConnection);
     this.ws = await new WSServer(this.onMessage, this.onConnection);
+
+    return this;
   })(); }
 
   onConnection(socket) {
@@ -25,9 +28,13 @@ export default class RPCServer {
       evt: 'READY',
       data: { }
     });
+
+    this.emit('connection', socket);
   }
 
-  async onMessage(socket, { cmd, args }) {
+  async onMessage(socket, { cmd, args, nonce }) {
+    this.emit('message', { socket, cmd, args, nonce });
+
     switch (cmd) {
       case 'SET_ACTIVITY':
         if (!socket.application) { // fetch info about application
@@ -54,7 +61,7 @@ export default class RPCServer {
         if (activity.assets?.large_image) activity.assets.large_image = lookupAsset(activity.assets.large_image, socket.application.assets);
         if (activity.assets?.small_image) activity.assets.small_image = lookupAsset(activity.assets.small_image, socket.application.assets);
 
-        Bridge.send({ // send to bridge
+        this.emit('activity', {
           activity: {
             name: socket.application.name,
             application_id: socket.application.id,

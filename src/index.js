@@ -3,5 +3,9 @@ const log = (...args) => console.log(`[${rgb(88, 101, 242, 'arRPC')}]`, ...args)
 
 log('arRPC v0.3.0');
 
+import * as Bridge from './bridge.js';
 import Server from './server.js';
-const x = await new Server();
+
+const server = await new Server();
+
+server.on('activity', data => Bridge.send(data));
