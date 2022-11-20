@@ -8,7 +8,8 @@ export const send = msg => {
   wss.clients.forEach(x => x.send(JSON.stringify(msg)));
 };
 
-const wss = new WebSocketServer({ port: 1337 });
+const port = 1337;
+const wss = new WebSocketServer({ port });
 
 wss.on('connection', socket => {
   log('web connected');
@@ -17,3 +18,5 @@ wss.on('connection', socket => {
     log('web disconnected');
   })
 });
+
+wss.on('listening', () => log('listening on', port));
