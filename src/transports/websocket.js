@@ -64,8 +64,8 @@ export default class WSServer {
 
     log(`new connection! origin:`, origin, JSON.parse(JSON.stringify(params)));
 
-    if (origin !== '') {
-      log('origin is defined, denying', origin);
+    if (origin !== '' && ![ 'https://discord.com', 'https://ptb.discord.com', 'https://canary.discord.com/' ].includes(origin)) {
+      log('disallowed origin', origin);
 
       socket.close();
       return;
@@ -85,12 +85,12 @@ export default class WSServer {
       return;
     }
 
-    if (clientId === '') {
+    /* if (clientId === '') {
       log('client id required');
 
       socket.close();
       return;
-    }
+    } */
 
     socket.clientId = clientId;
     socket.encoding = encoding;
