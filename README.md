@@ -18,13 +18,26 @@ Rich Presence (RPC) is the name for how some apps can talk to Discord desktop on
 
 <br>
 
-### How to try
-1. Clone repo
-2. Run server with `node src` (use latest Node >=18)
-2. Open Discord in browser (or any client wrapper)
-3. Run content of [`examples/bridge_mod.js`](examples/bridge_mod.js) in Console
-4. Use an app/thing with RPC
-5. Hope it works, if not report bugs :)
+## Usage
+
+### Armcord
+Armcord has arRPC specially integrated, just enable the option!
+
+### Server
+1. Have latest (>=18) Node installed
+2. Clone GitHub repo
+3. `npm install`
+4. Run server with `node src`
+
+### Client
+
+#### No Mods
+With Discord open, run the content of [`examples/bridge_mod.js`](examples/bridge_mod.js) in Console (Ctrl+Shift+I).
+
+#### Vencord
+Just enable the `WebRichPresence (arRPC)` Vencord plugin!
+
+<br>
 
 ## Supported
 
