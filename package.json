@@ -1,6 +1,6 @@
 {
   "name": "arrpc",
-  "version": "0.3.0",
+  "version": "1.0.0",
   "description": "Open Discord RPC server for atypical setups",
   "main": "index.js",
   "scripts": {
