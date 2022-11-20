@@ -12,8 +12,13 @@ export default class RPCServer extends EventEmitter {
     this.onConnection = this.onConnection.bind(this);
     this.onMessage = this.onMessage.bind(this);
 
-    this.ipc = await new IPCServer(this.onMessage, this.onConnection);
-    this.ws = await new WSServer(this.onMessage, this.onConnection);
+    const handlers = {
+      connection: this.onConnection,
+      message: this.onMessage
+    };
+
+    this.ipc = await new IPCServer(handlers);
+    this.ws = await new WSServer(handlers);
 
     return this;
   })(); }

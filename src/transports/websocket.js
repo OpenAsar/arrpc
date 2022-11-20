@@ -8,9 +8,8 @@ import { parse } from 'querystring';
 const portRange = [ 6463, 6472 ]; // ports available/possible: 6463-6472
 
 export default class WSServer {
-  constructor(messageHandler, connectionHandler) { return (async () => {
-    this.messageHandler = messageHandler;
-    this.connectionHandler = connectionHandler;
+  constructor(handlers) { return (async () => {
+    this.handlers = handlers;
 
     this.onConnection = this.onConnection.bind(this);
     this.onMessage = this.onMessage.bind(this);
@@ -111,11 +110,11 @@ export default class WSServer {
       socket._send(JSON.stringify(msg));
     };
 
-    this.connectionHandler(socket);
+    this.handlers.connection(socket);
   }
 
   onMessage(socket, msg) {
     log('message', JSON.parse(msg));
-    this.messageHandler(socket, JSON.parse(msg));
+    this.handlers.message(socket, JSON.parse(msg));
   }
 }

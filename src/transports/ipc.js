@@ -154,9 +154,8 @@ const getAvailableSocket = async (tries = 0) => {
 };
 
 export default class IPCServer {
-  constructor(messageHandler, connectionHandler) { return new Promise(async res => {
-    this.messageHandler = messageHandler;
-    this.connectionHandler = connectionHandler;
+  constructor(handers) { return new Promise(async res => {
+    this.handlers = handers;
 
     this.onConnection = this.onConnection.bind(this);
     this.onMessage = this.onMessage.bind(this);
@@ -232,12 +231,12 @@ export default class IPCServer {
 
       socket.clientId = clientId;
 
-      this.connectionHandler(socket);
+      this.handlers.connection(socket);
     })
   }
 
   onMessage(socket, msg) {
     log('message', msg);
-    this.messageHandler(socket, msg);
+    this.handlers.message(socket, msg);
   }
 }
