@@ -63,7 +63,7 @@ export default class RPCServer extends EventEmitter {
         const { activity, pid } = args; // translate given parameters into what discord dispatch expects
         const { buttons, timestamps, instance } = activity;
 
-        socket.lastPid = pid;
+        socket.lastPid = pid ?? socket.lastPid;
 
         const metadata = {};
         const extra = {};
@@ -75,6 +75,7 @@ export default class RPCServer extends EventEmitter {
         if (timestamps) for (const x in timestamps) { // translate s -> ms timestamps
           if (Date.now().toString().length - timestamps[x].toString().length > 2) timestamps[x] = Math.floor(1000 * timestamps[x]);
         }
+
 
         this.emit('activity', {
           activity: {
