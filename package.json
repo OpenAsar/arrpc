@@ -1,10 +1,9 @@
 {
   "name": "arrpc",
-  "version": "2.0.0",
+  "version": "2.2.0",
   "description": "Open Discord RPC server for atypical setups",
   "main": "src/server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node src"
   },
   "repository": {
