@@ -52,3 +52,4 @@ Just enable the `WebRichPresence (arRPC)` Vencord plugin!
 - [X] DISPATCH
 - [X] SET_ACTIVITY
 - [X] INVITE_BROWSER
+- [X] GUILD_TEMPLATE_BROWSER

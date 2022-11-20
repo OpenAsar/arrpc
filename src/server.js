@@ -71,6 +71,7 @@ export default class RPCServer extends EventEmitter {
 
         break;
 
+      case 'GUILD_TEMPLATE_BROWSER':
       case 'INVITE_BROWSER':
         const { code } = args;
         socket.send({
@@ -81,7 +82,7 @@ export default class RPCServer extends EventEmitter {
           nonce
         });
 
-        this.emit('invite', code);
+        this.emit(cmd === 'INVITE_BROWSER' ? 'invite' : 'guild_template', code);
         break;
     }
   }
