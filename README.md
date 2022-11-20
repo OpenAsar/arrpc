@@ -28,10 +28,12 @@ Rich Presence (RPC) is the name for how some apps can talk to Discord desktop on
 
 ### Web
 #### No Mods
-With Discord open (and [the server running](#server-required)), run the content of [`examples/bridge_mod.js`](examples/bridge_mod.js) in Console (Ctrl+Shift+I).
+1. Get [the arRPC server running](#server-required)
+2. With Discord open, run the content of [`examples/bridge_mod.js`](examples/bridge_mod.js) in Console (Ctrl+Shift+I).
 
 #### Vencord
-Just enable the `WebRichPresence (arRPC)` Vencord plugin (with the server running)!
+1. Get [the arRPC server running](#server-required)
+2. Just enable the `WebRichPresence (arRPC)` Vencord plugin!
 
 ### Custom Clients
 
@@ -39,8 +41,9 @@ Just enable the `WebRichPresence (arRPC)` Vencord plugin (with the server runnin
 ArmCord has arRPC specially integrated, just enable the option in it's settings (server not required)!
 
 #### Webcord
-1. Disable the `Use built-in Content Security Policy` option in Advanced settings: ![image](https://user-images.githubusercontent.com/19228318/202926723-93b772fc-f37d-47d4-81fd-b11c5d4051e8.png)
-2. With Webcord open (and [the server running](#server-required)), run the content of [`examples/bridge_mod.js`](examples/bridge_mod.js) in the DevTools Console (Ctrl+Shift+I).
+1. Get [the arRPC server running](#server-required)
+2. Disable the `Use built-in Content Security Policy` option in Advanced settings: ![image](https://user-images.githubusercontent.com/19228318/202926723-93b772fc-f37d-47d4-81fd-b11c5d4051e8.png)
+3. With Webcord open, run the content of [`examples/bridge_mod.js`](examples/bridge_mod.js) in the DevTools Console (Ctrl+Shift+I).
 
 ---
 
