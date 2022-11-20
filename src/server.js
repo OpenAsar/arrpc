@@ -84,6 +84,10 @@ export default class RPCServer extends EventEmitter {
 
         this.emit(cmd === 'INVITE_BROWSER' ? 'invite' : 'guild_template', code);
         break;
+
+      case 'DEEP_LINK':
+        this.emit('link', args.params);
+        break;
     }
   }
 }
