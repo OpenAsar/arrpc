@@ -15,7 +15,7 @@ Rich Presence (RPC) is the name for how some apps can talk to Discord desktop on
 1. Clone repo
 2. Run server with `node src` (use new Node)
 2. Open Discord in browser
-3. Run content of [`simple_mod.js`](simple_mod.js) in console
+3. Run content of [`examples/bridge_mod.js`](examples/bridge_mod.js) in console
 4. Use an app/thing with RPC
 5. Hope it works, if not report bugs :)
 

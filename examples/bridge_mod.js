@@ -1,6 +1,6 @@
 let Dispatcher;
 
-const ws = new WebSocket('ws://127.0.0.1:1337'); // connect to arRPC bridge
+const ws = new WebSocket('ws://127.0.0.1:1337'); // connect to arRPC bridge websocket
 ws.onmessage = x => {
   msg = JSON.parse(x.data);
   console.log(msg);
