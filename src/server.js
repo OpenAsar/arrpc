@@ -55,12 +55,6 @@ export default class RPCServer extends EventEmitter {
 
     switch (cmd) {
       case 'SET_ACTIVITY':
-        if (!socket.application) { // fetch info about application
-          socket.application = await (await fetch(`https://discord.com/api/v9/oauth2/applications/${socket.clientId}/rpc`)).json();
-          socket.application.assets = await (await fetch(`https://discord.com/api/v9/oauth2/applications/${socket.clientId}/assets`)).json();
-          log('fetched app info for', socket.clientId, socket.application);
-        }
-
         const { activity, pid } = args; // translate given parameters into what discord dispatch expects
         const { buttons, timestamps, instance } = activity;
 
@@ -80,8 +74,7 @@ export default class RPCServer extends EventEmitter {
 
         this.emit('activity', {
           activity: {
-            name: socket.application.name,
-            application_id: socket.application.id,
+            application_id: socket.clientId,
             type: 0,
             metadata,
             flags: instance ? (1 << 0) : 0,
