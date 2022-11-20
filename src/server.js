@@ -26,7 +26,10 @@ export default class RPCServer extends EventEmitter {
     socket.send({
       cmd: 'DISPATCH',
       evt: 'READY',
-      data: { }
+
+      data: {
+        v: 1
+      }
     });
 
     this.emit('connection', socket);
@@ -74,6 +77,19 @@ export default class RPCServer extends EventEmitter {
           pid
         });
 
+        break;
+
+      case 'INVITE_BROWSER':
+        const { code } = args;
+        socket.send({
+          cmd,
+          data: {
+            code
+          },
+          nonce
+        });
+
+        this.emit('invite', code);
         break;
     }
   }
