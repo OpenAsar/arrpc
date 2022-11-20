@@ -1,5 +1,12 @@
-# arRPC
-arRPC is an open source implementation of Discord's half-documented local RPC servers for their desktop client. This open source implementation purely in NodeJS allows it to be used in many places where it is otherwise impossible to do: Discord web and alternative clients like Armcord/etc. It opens a simple bridge WebSocket server which messages the JSON of exactly what to dispatch with in the client with no extra processing needed, allowing small and simple mods or plugins. **It is currently in alpha and is very WIP, expect bugs, etc.**
+<div align="center">
+  <img src="https://user-images.githubusercontent.com/19228318/202900211-95e8474b-edbb-4048-ba0b-a581a6d57fc4.png" width=300>
+  <h3>An open implementation of Discord's local RPC servers</h3>
+  <h4>Allowing RPC where it was otherwise impossible, like Discord Web and custom clients</h4>
+</div>
+
+<br>
+
+arRPC is an open source implementation of Discord's half-documented local RPC servers for their desktop client. This open source implementation purely in NodeJS allows it to be used in many places where it is otherwise impossible to do: Discord web and alternative clients like Armcord/etc. It opens a simple bridge WebSocket server which messages the JSON of exactly what to dispatch with in the client with no extra processing needed, allowing small and simple mods or plugins. **It is currently in beta and is WIP, so expect bugs, etc.**
 
 <br>
 
