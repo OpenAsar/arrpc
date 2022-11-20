@@ -219,6 +219,7 @@ export default class IPCServer {
 
       socket.on('close', e => {
         log('socket closed', e);
+        this.handlers.close(socket);
       });
 
       socket.on('request', this.onMessage.bind(this, socket));

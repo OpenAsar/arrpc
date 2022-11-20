@@ -14,7 +14,8 @@ export default class RPCServer extends EventEmitter {
 
     const handlers = {
       connection: this.onConnection,
-      message: this.onMessage
+      message: this.onMessage,
+      close: this.onClose
     };
 
     this.ipc = await new IPCServer(handlers);
@@ -36,6 +37,15 @@ export default class RPCServer extends EventEmitter {
     this.emit('connection', socket);
   }
 
+  onClose(socket) {
+    this.emit('activity', {
+      activity: null,
+      pid: socket.lastPid
+    });
+
+    this.emit('close', socket);
+  }
+
   async onMessage(socket, { cmd, args, nonce }) {
     this.emit('message', { socket, cmd, args, nonce });
 
@@ -49,6 +59,8 @@ export default class RPCServer extends EventEmitter {
 
         const { activity, pid } = args; // translate given parameters into what discord dispatch expects
         const { buttons, timestamps, instance } = activity;
+
+        socket.lastPid = pid;
 
         const metadata = {};
         const extra = {};

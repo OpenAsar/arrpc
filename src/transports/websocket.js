@@ -99,7 +99,8 @@ export default class WSServer {
     });
 
     socket.on('close', (e, r) => {
-      log('socket closed', e);
+      log('socket closed', e, r);
+      this.handlers.close(socket);
     });
 
     socket.on('message', this.onMessage.bind(this, socket));
