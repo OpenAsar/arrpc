@@ -52,11 +52,13 @@ ws.onmessage = async x => {
   if (msg.activity?.assets?.large_image) msg.activity.assets.large_image = await lookupAsset(msg.activity.application_id, msg.activity.assets.large_image);
   if (msg.activity?.assets?.small_image) msg.activity.assets.small_image = await lookupAsset(msg.activity.application_id, msg.activity.assets.small_image);
 
-  const appId = msg.activity.application_id;
-  if (!apps[appId]) apps[appId] = await lookupApp(appId);
+  if (msg.activity) {
+    const appId = msg.activity.application_id;
+    if (!apps[appId]) apps[appId] = await lookupApp(appId);
 
-  const app = apps[appId];
-  if (!msg.activity.name) msg.activity.name = app.name;
+    const app = apps[appId];
+    if (!msg.activity.name) msg.activity.name = app.name;
+  }
 
   Dispatcher.dispatch({ type: "LOCAL_ACTIVITY_UPDATE", ...msg }); // set RPC status
 };
