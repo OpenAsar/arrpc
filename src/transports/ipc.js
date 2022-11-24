@@ -199,6 +199,14 @@ export default class IPCServer {
       const clientId = params.client_id ?? '';
       // encoding is always json for ipc
 
+      socket.close = (code = CloseCodes.CLOSE_NORMAL, message = '') => {
+        socket.end(encode(Types.CLOSE, {
+          code,
+          message
+        }));
+        socket.destroy();
+      };
+
       if (ver !== 1) {
         log('unsupported version requested', ver);
 
