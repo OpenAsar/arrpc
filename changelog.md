@@ -1,5 +1,9 @@
 # arRPC Changelog
 
+## v2.2.1 [24-11-2022]
+- IPC: Fix version given as string not being accepted
+- IPC: Fix socket closing
+
 ## v2.2.0 [20-11-2022]
 - Server: Move all looking up/fetching to client
 
