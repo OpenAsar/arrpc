@@ -195,7 +195,7 @@ export default class IPCServer {
     socket.once('handshake', params => {
       log('handshake:', params);
 
-      const ver = params.v ?? 1;
+      const ver = parseInt(params.v ?? 1);
       const clientId = params.client_id ?? '';
       // encoding is always json for ipc
 
