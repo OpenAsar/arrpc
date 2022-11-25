@@ -28,9 +28,10 @@ export default class ProcessServer {
 
     for (const [ pid, _path ] of processes) {
       const path = _path.toLowerCase().replaceAll('\\', '/');
+      const toCompare = [ path.split('/').pop(), path.split('/').slice(-2).join('/') ];
 
       for (const { executables, id, name } of DetectableDB) {
-        if (executables?.some(x => path.includes(x.name))) {
+        if (executables?.some(x => x.name === toCompare[0] || x.name === toCompare[1])) {
           names[id] = name;
           pids[id] = pid;
 
