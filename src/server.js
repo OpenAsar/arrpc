@@ -34,8 +34,20 @@ export default class RPCServer extends EventEmitter {
 
       data: {
         v: 1,
-        user: {
-          id: '0'
+
+        // needed otherwise some stuff errors out parsing json strictly
+        user: { // mock user data using arRPC app/bot
+          id: '1045800378228281345',
+          username: 'arRPC',
+          discriminator: '0000',
+          avatar: 'cfefa4d9839fb4bdf030f91c2a13e95c',
+          flags: 0,
+          premium_type: 0,
+        },
+        config: {
+          api_endpoint: '//discord.com/api',
+          cdn_host: 'cdn.discordapp.com',
+          environment: 'production'
         }
       }
     });
