@@ -31,7 +31,10 @@ export default class RPCServer extends EventEmitter {
       evt: 'READY',
 
       data: {
-        v: 1
+        v: 1,
+        user: {
+          id: '0'
+        }
       }
     });
 
