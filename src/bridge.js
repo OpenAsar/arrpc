@@ -6,7 +6,7 @@ import { WebSocketServer } from 'ws';
 // basic bridge to pass info onto webapp
 let lastMsg = {};
 export const send = msg => {
-  lastMsg[msg.clientId] = msg;
+  lastMsg[msg.socketId] = msg;
   wss.clients.forEach(x => x.send(JSON.stringify(msg)));
 };
 
@@ -22,7 +22,7 @@ wss.on('connection', socket => {
 
   socket.on('close', () => {
     log('web disconnected');
-  })
+  });
 });
 
 wss.on('listening', () => log('listening on', port));
