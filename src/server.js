@@ -109,6 +109,13 @@ export default class RPCServer extends EventEmitter {
           socketId: socket.socketId.toString()
         });
 
+        socket.send?.({
+          cmd,
+          data: null,
+          evt: null,
+          nonce
+        });
+
         break;
 
       case 'GUILD_TEMPLATE_BROWSER':
