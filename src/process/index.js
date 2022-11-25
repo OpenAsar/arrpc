@@ -31,7 +31,7 @@ export default class ProcessServer {
       const toCompare = [ path.split('/').pop(), path.split('/').slice(-2).join('/') ];
 
       for (const { executables, id, name } of DetectableDB) {
-        if (executables?.some(x => x.name === toCompare[0] || x.name === toCompare[1])) {
+        if (executables?.some(x => !x.isLauncher && x.name === toCompare[0] || x.name === toCompare[1])) {
           names[id] = name;
           pids[id] = pid;
 
