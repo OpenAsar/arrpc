@@ -30,8 +30,14 @@ export default class ProcessServer {
       const path = _path.toLowerCase().replaceAll('\\', '/');
       const toCompare = [ path.split('/').pop(), path.split('/').slice(-2).join('/') ];
 
+      for (const p of toCompare) { // add more possible tweaked paths for less false negatives
+        toCompare.push(p.replace('64', '')); // remove 64bit identifiers-ish
+        toCompare.push(p.replace('.x64', ''));
+        toCompare.push(p.replace('x64', ''));
+      }
+
       for (const { executables, id, name } of DetectableDB) {
-        if (executables?.some(x => !x.isLauncher && (x.name === toCompare[0] || x.name === toCompare[1]))) {
+        if (executables?.some(x => !x.isLauncher && toCompare.some(y => x.name === y))) {
           names[id] = name;
           pids[id] = pid;
 
