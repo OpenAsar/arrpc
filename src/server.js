@@ -3,8 +3,9 @@ const log = (...args) => console.log(`[${rgb(88, 101, 242, 'arRPC')} > ${rgb(87,
 
 import { EventEmitter } from 'events';
 
-import IPCServer from "./transports/ipc.js";
-import WSServer from "./transports/websocket.js";
+import IPCServer from './transports/ipc.js';
+import WSServer from './transports/websocket.js';
+import ProcessServer from './process/index.js';
 
 let socketId = 0;
 export default class RPCServer extends EventEmitter {
@@ -21,6 +22,7 @@ export default class RPCServer extends EventEmitter {
 
     this.ipc = await new IPCServer(handlers);
     this.ws = await new WSServer(handlers);
+    this.process = await new ProcessServer(handlers);
 
     return this;
   })(); }
