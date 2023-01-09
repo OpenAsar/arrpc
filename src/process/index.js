@@ -10,7 +10,7 @@ const Native = Natives[process.platform];
 const timestamps = {}, names = {}, pids = {};
 export default class ProcessServer {
   constructor(handlers) {
-    if (!Native) return log('unsupported platform:', process.platform);
+    if (!Native) return; // log('unsupported platform:', process.platform);
 
     this.handlers = handlers;
 
