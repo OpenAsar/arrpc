@@ -4,7 +4,7 @@ const log = (...args) => console.log(`[${rgb(88, 101, 242, 'arRPC')} > ${rgb(237
 
 var DetectableDB = require(path.join(__dirname, "../process/detectable.json"));
 
-const Native = require(path.join(__dirname, '../process/native/index.js'));
+var Native = require(path.join(__dirname, '../process/native/index.js'));
 
 const timestamps = {}, names = {}, pids = {};
 class ProcessServer {
@@ -23,14 +23,14 @@ class ProcessServer {
   }
 
   async scan() {
-    const processes = await Native;
+    var processes = await Native;
 	//console.log(processes)
     var ids = [];
  	var names = [];
 	var pids = [];
 	var timestamps = [];  
 
-    for (const process of processes) {
+    for (var process of processes) {
       const path = process.path.toLowerCase().replaceAll('\\', '/');
       const toCompare = [ path.split('/').pop(), path ];
 		//console.log(toCompare);
