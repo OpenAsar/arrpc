@@ -26,9 +26,9 @@ class ProcessServer {
     const processes = await Native;
 	//console.log(processes)
     var ids = [];
-/*  	var names = [];
+ 	var names = [];
 	var pids = [];
-	var timestamps = [];  */
+	var timestamps = [];  
 
     for (const process of processes) {
       const path = process.path.toLowerCase().replaceAll('\\', '/');
@@ -43,12 +43,14 @@ class ProcessServer {
 
       for (const app of DetectableDB) { //{ executables, id, name }
         if (app.executables?.some(x => !x.isLauncher && toCompare.some(y => x.name === y))) {
-			//names.push(app.name);
+		  //names.push(app.name);
           names[app.id] = app.name;
+		  //console.log(names);
           pids[app.id] = process.pid;
+		  //console.log(pids);
 
           ids.push(app.id);
-		  console.log(ids)
+		  //console.log(ids)
           if (!timestamps[app.id]) {
             log('detected game!', app.name);
 			//console.log('detected game!', name);
@@ -66,7 +68,7 @@ class ProcessServer {
                     start: timestamps[app.id]
                   }
                 },
-                pid
+                pid: process.pid
               }
             });
           }

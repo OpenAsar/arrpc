@@ -10,7 +10,7 @@ const log = (...args) => console.log(`[${rgb(88, 101, 242, 'arRPC')} > ${rgb(87,
 
 // basic bridge to pass info onto webapp
 let lastMsg = {};
-const send = msg => {
+exports.send = function(msg){
   lastMsg[msg.socketId] = msg;
   wss.clients.forEach(x => x.send(JSON.stringify(msg)));
 };
@@ -20,7 +20,7 @@ wss.on('connection', socket => {
   //console.log('web connected');
 
   for (const id in lastMsg) { // catch up newly connected
-    if (lastMsg[id].activity != null) send(lastMsg[id]);
+    if (lastMsg[id].activity != null) this.send(lastMsg[id]);
   }
 
   socket.on('close', () => {
