@@ -23,8 +23,11 @@ export default class ProcessServer {
   }
 
   async scan() {
+    const startTime = performance.now();
     const processes = await Native.getProcesses();
     const ids = [];
+
+    // log(`got processed in ${(performance.now() - startTime).toFixed(2)}ms`);
 
     for (const [ pid, _path ] of processes) {
       const path = _path.toLowerCase().replaceAll('\\', '/');
@@ -82,5 +85,8 @@ export default class ProcessServer {
         });
       }
     }
+
+    // log(`finished scan in ${(performance.now() - startTime).toFixed(2)}ms`);
+    // process.stdout.write(`\r${' '.repeat(100)}\r[${rgb(88, 101, 242, 'arRPC')} > ${rgb(237, 66, 69, 'process')}] scanned (took ${(performance.now() - startTime).toFixed(2)}ms)`);
   }
 }
