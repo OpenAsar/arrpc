@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/OpenAsar/arrpc#readme",
   "dependencies": {
+    "process-list": "^2.0.0",
     "shelljs": "^0.8.5",
     "ws": "^8.11.0"
   },

@@ -4,9 +4,7 @@ const log = (...args) => console.log(`[${rgb(88, 101, 242, 'arRPC')} > ${rgb(237
 
 var DetectableDB = require(path.join(__dirname, "../process/detectable.json"));
 
-var Natives = require(path.join(__dirname, '../process/native/index.js'));
-const Native = Natives[process.platform];
-
+const Native = require(path.join(__dirname, '../process/native/index.js'));
 
 const timestamps = {}, names = {}, pids = {};
 class ProcessServer {
@@ -25,40 +23,47 @@ class ProcessServer {
   }
 
   async scan() {
-    const processes = await Native.getProcesses();
-    const ids = [];
+    const processes = await Native;
+	//console.log(processes)
+    var ids = [];
+ 	var names = [];
+	var pids = [];
+	var timestamps = []; 
 
-    for (const [ pid, _path ] of processes) {
-      const path = _path.toLowerCase().replaceAll('\\', '/');
-      const toCompare = [ path.split('/').pop(), path.split('/').slice(-2).join('/') ];
-
+    for (const process of processes) {
+      const path = process.path.toLowerCase().replaceAll('\\', '/');
+      const toCompare = [ path.split('/').pop(), path ];
+		//console.log(toCompare);
+		
       for (const p of toCompare.slice()) { // add more possible tweaked paths for less false negatives
         toCompare.push(p.replace('64', '')); // remove 64bit identifiers-ish
         toCompare.push(p.replace('.x64', ''));
         toCompare.push(p.replace('x64', ''));
       }
 
-      for (const { executables, id, name } of DetectableDB) {
-        if (executables?.some(x => !x.isLauncher && toCompare.some(y => x.name === y))) {
-          names[id] = name;
-          pids[id] = pid;
+      for (const app of DetectableDB) { //{ executables, id, name }
+        if (app.executables?.some(x => !x.isLauncher && toCompare.some(y => x.name === y))) {
+			names.push(app.name);
+          names[app.id] = app.name;
+          pids[app.id] = process.pid;
 
-          ids.push(id);
-          if (!timestamps[id]) {
-            log('detected game!', name);
+          ids.push(app.id);
+		  console.log(ids)
+          if (!timestamps[app.id]) {
+            log('detected game!', app.name);
 			//console.log('detected game!', name);
-            timestamps[id] = Date.now();
+            timestamps[app.id] = Date.now();
 
             this.handlers.message({
-              socketId: id
+              socketId: app.id
             }, {
               cmd: 'SET_ACTIVITY',
               args: {
                 activity: {
-                  application_id: id,
-                  name,
+                  application_id: app.id,
+                  name: app.name,
                   timestamps: {
-                    start: timestamps[id]
+                    start: timestamps[app.id]
                   }
                 },
                 pid
