@@ -1,14 +1,15 @@
+const path = require('path');
 const rgb = (r, g, b, msg) => `\x1b[38;2;${r};${g};${b}m${msg}\x1b[0m`;
 const log = (...args) => console.log(`[${rgb(88, 101, 242, 'arRPC')} > ${rgb(237, 66, 69, 'process')}]`, ...args);
 
-import DetectableDB from "./detectable.json" assert { type: "json" };
+var DetectableDB = require(path.join(__dirname, "../process/detectable.json"));
 
-import * as Natives from './native/index.js';
+var Natives = require(path.join(__dirname, '../process/native/index.js'));
 const Native = Natives[process.platform];
 
 
 const timestamps = {}, names = {}, pids = {};
-export default class ProcessServer {
+class ProcessServer {
   constructor(handlers) {
     if (!Native) return; // log('unsupported platform:', process.platform);
 
@@ -20,6 +21,7 @@ export default class ProcessServer {
     setInterval(this.scan, 5000);
 
     log('started');
+	//console.log('started');
   }
 
   async scan() {
@@ -44,6 +46,7 @@ export default class ProcessServer {
           ids.push(id);
           if (!timestamps[id]) {
             log('detected game!', name);
+			//console.log('detected game!', name);
             timestamps[id] = Date.now();
 
             this.handlers.message({
@@ -69,6 +72,7 @@ export default class ProcessServer {
     for (const id in timestamps) {
       if (!ids.includes(id)) {
         log('lost game!', names[id]);
+		//console.log('lost game!', names[id]);
         delete timestamps[id];
 
         this.handlers.message({
@@ -84,3 +88,5 @@ export default class ProcessServer {
     }
   }
 }
+
+module.exports = ProcessServer

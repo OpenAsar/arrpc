@@ -1,14 +1,15 @@
+const path = require('path');
 const rgb = (r, g, b, msg) => `\x1b[38;2;${r};${g};${b}m${msg}\x1b[0m`;
 const log = (...args) => console.log(`[${rgb(88, 101, 242, 'arRPC')} > ${rgb(87, 242, 135, 'bridge')}]`, ...args);
 
-import { EventEmitter } from 'events';
+var EventEmitter = require('events');
 
-import IPCServer from './transports/ipc.js';
-import WSServer from './transports/websocket.js';
-import ProcessServer from './process/index.js';
+var IPCServer = require(path.join(__dirname, '../src/transports/ipc.js'));
+var WSServer = require(path.join(__dirname, '../src/transports/websocket.js'));
+var ProcessServer = require(path.join(__dirname, '../src/process/index.js'));
 
 let socketId = 0;
-export default class RPCServer extends EventEmitter {
+class RPCServer extends EventEmitter {
   constructor() { super(); return (async () => {
     this.onConnection = this.onConnection.bind(this);
     this.onMessage = this.onMessage.bind(this);
@@ -55,6 +56,7 @@ export default class RPCServer extends EventEmitter {
     socket.socketId = socketId++;
 
     this.emit('connection', socket);
+	console.log('Connected');
   }
 
   onClose(socket) {
@@ -65,6 +67,7 @@ export default class RPCServer extends EventEmitter {
     });
 
     this.emit('close', socket);
+	console.log('Activity');
   }
 
   async onMessage(socket, { cmd, args, nonce }) {
@@ -138,3 +141,5 @@ export default class RPCServer extends EventEmitter {
     }
   }
 }
+
+module.exports = RPCServer

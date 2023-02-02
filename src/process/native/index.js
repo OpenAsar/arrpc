@@ -1,1 +1,2 @@
-export * as win32 from './win32.js';
+const path = require('path');
+const win32 = require(path.join(__dirname, '../native/win32.js'));

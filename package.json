@@ -3,6 +3,7 @@
   "version": "2.2.1",
   "description": "Open Discord RPC server for atypical setups",
   "main": "src/server.js",
+  "bin": "./bin/my-bin.js",
   "scripts": {
     "start": "node src"
   },
@@ -17,7 +18,8 @@
   },
   "homepage": "https://github.com/OpenAsar/arrpc#readme",
   "dependencies": {
+    "shelljs": "^0.8.5",
     "ws": "^8.11.0"
   },
-  "type": "module"
+  "type": "commonjs"
 }

@@ -1,13 +1,13 @@
 const rgb = (r, g, b, msg) => `\x1b[38;2;${r};${g};${b}m${msg}\x1b[0m`;
 const log = (...args) => console.log(`[${rgb(88, 101, 242, 'arRPC')} > ${rgb(235, 69, 158, 'websocket')}]`, ...args);
 
-import { WebSocketServer } from 'ws';
-import { createServer } from 'http';
-import { parse } from 'querystring';
+var { WebSocketServer } = require('ws');
+var { createServer } = require('http');
+var { parse } = require('querystring');
 
 const portRange = [ 6463, 6472 ]; // ports available/possible: 6463-6472
 
-export default class WSServer {
+class WSServer {
   constructor(handlers) { return (async () => {
     this.handlers = handlers;
 
@@ -19,27 +19,30 @@ export default class WSServer {
     let http, wss;
     while (port <= portRange[1]) {
       log('trying port', port);
+	  //console.log('trying port', port);
 
       if (await new Promise(res => {
         http = createServer();
         http.on('error', e => {
-          // log('http error', e);
+          log('http error', e);
 
           if (e.code === 'EADDRINUSE') {
             log(port, 'in use!');
+			//console.log(port, 'in use!');
             res(false);
           }
         });
 
         wss = new WebSocketServer({ server: http });
         wss.on('error', e => {
-          // log('wss error', e);
+          log('wss error', e);
         });
 
         wss.on('connection', this.onConnection);
 
         http.listen(port, '127.0.0.1', () => {
           log('listening on', port);
+		  //console.log('listening on', port);
 
           this.http = http;
           this.wss = wss;
@@ -62,9 +65,11 @@ export default class WSServer {
     const origin = req.headers.origin ?? '';
 
     log(`new connection! origin:`, origin, JSON.parse(JSON.stringify(params)));
+	//console.log(`new connection! origin:`, origin, JSON.parse(JSON.stringify(params)));
 
     if (origin !== '' && ![ 'https://discord.com', 'https://ptb.discord.com', 'https://canary.discord.com/' ].includes(origin)) {
       log('disallowed origin', origin);
+	  //console.log('disallowed origin', origin);
 
       socket.close();
       return;
@@ -72,6 +77,7 @@ export default class WSServer {
 
     if (encoding !== 'json') {
       log('unsupported encoding requested', encoding);
+	  //console.log('unsupported encoding requested', encoding);
 
       socket.close();
       return;
@@ -79,6 +85,7 @@ export default class WSServer {
 
     if (ver !== 1) {
       log('unsupported version requested', ver);
+	  //console.log('unsupported version requested', ver);
 
       socket.close();
       return;
@@ -96,10 +103,12 @@ export default class WSServer {
 
     socket.on('error', e => {
       log('socket error', e);
+	  //console.log('socket error', e);
     });
 
     socket.on('close', (e, r) => {
       log('socket closed', e, r);
+	  //console.log('socket closed', e, r);
       this.handlers.close(socket);
     });
 
@@ -108,6 +117,7 @@ export default class WSServer {
     socket._send = socket.send;
     socket.send = msg => {
       log('sending', msg);
+	  //console.log('sending', msg);
       socket._send(JSON.stringify(msg));
     };
 
@@ -116,6 +126,9 @@ export default class WSServer {
 
   onMessage(socket, msg) {
     log('message', JSON.parse(msg));
+	//console.log('message', JSON.parse(msg));
     this.handlers.message(socket, JSON.parse(msg));
   }
 }
+
+module.exports = WSServer

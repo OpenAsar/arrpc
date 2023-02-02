@@ -1,11 +1,11 @@
 const rgb = (r, g, b, msg) => `\x1b[38;2;${r};${g};${b}m${msg}\x1b[0m`;
 const log = (...args) => console.log(`[${rgb(88, 101, 242, 'arRPC')} > ${rgb(254, 231, 92, 'ipc')}]`, ...args);
 
-import { join } from 'path';
-import { platform, env } from 'process';
-import { unlinkSync } from 'fs';
+var { join } = require('path');
+var { platform, env } = require('process');
+var { unlinkSync } = require('fs');
 
-import { createServer, createConnection } from 'net';
+var { createServer, createConnection } = require('net');
 
 const SOCKET_PATH = platform === 'win32' ? '\\\\?\\pipe\\discord-ipc'
   : join(env.XDG_RUNTIME_DIR || env.TMPDIR || env.TMP || env.TEMP || '/tmp', 'discord-ipc');
@@ -102,6 +102,7 @@ const socketIsAvailable = async socket => {
       read(socket);
     } catch (e) {
       log('error whilst reading', e);
+	  //console.log('error whilst reading', e);
 
       socket.end(encode(Types.CLOSE, {
         code: CloseCodes.CLOSE_UNSUPPORTED,
@@ -129,6 +130,7 @@ const socketIsAvailable = async socket => {
   const outcome = await possibleOutcomes;
   stop();
   log('checked if socket is available:', outcome === true, outcome === true ? '' : `- reason: ${outcome}`);
+  //console.log('checked if socket is available:', outcome === true, outcome === true ? '' : `- reason: ${outcome}`);
 
   return outcome === true;
 };
@@ -142,6 +144,7 @@ const getAvailableSocket = async (tries = 0) => {
   const socket = createConnection(path);
 
   log('checking', path);
+  //console.log('checking', path);
 
   if (await socketIsAvailable(socket)) {
     if (platform !== 'win32') try { unlinkSync(path); } catch { }
@@ -150,10 +153,11 @@ const getAvailableSocket = async (tries = 0) => {
   }
 
   log(`not available, trying again (attempt ${tries + 1})`);
+  //console.log(`not available, trying again (attempt ${tries + 1})`);
   return getAvailableSocket(tries + 1);
 };
 
-export default class IPCServer {
+class IPCServer {
   constructor(handers) { return new Promise(async res => {
     this.handlers = handers;
 
@@ -163,11 +167,13 @@ export default class IPCServer {
     const server = createServer(this.onConnection);
     server.on('error', e => {
       log('server error', e);
+	  //console.log('server error', e);
     });
 
     const socketPath = await getAvailableSocket();
     server.listen(socketPath, () => {
       log('listening at', socketPath);
+	  //console.log('listening at', socketPath);
       this.server = server;
 
       res(this);
@@ -176,6 +182,7 @@ export default class IPCServer {
 
   onConnection(socket) {
     log('new connection!');
+	//console.log('new connection!');
 
     socket.pause();
     socket.on('readable', () => {
@@ -183,6 +190,7 @@ export default class IPCServer {
         read(socket);
       } catch (e) {
         log('error whilst reading', e);
+		//console.log('error whilst reading', e);
 
         socket.end(encode(Types.CLOSE, {
           code: CloseCodes.CLOSE_UNSUPPORTED,
@@ -194,6 +202,7 @@ export default class IPCServer {
 
     socket.once('handshake', params => {
       log('handshake:', params);
+	  //console.log('handshake:', params);
 
       const ver = parseInt(params.v ?? 1);
       const clientId = params.client_id ?? '';
@@ -209,6 +218,7 @@ export default class IPCServer {
 
       if (ver !== 1) {
         log('unsupported version requested', ver);
+		//console.log('unsupported version requested', ver);
 
         socket.close(ErrorCodes.INVALID_VERSION);
         return;
@@ -216,6 +226,7 @@ export default class IPCServer {
 
       if (clientId === '') {
         log('client id required');
+		//console.log('client id required');
 
         socket.close(ErrorCodes.INVALID_CLIENTID);
         return;
@@ -223,10 +234,12 @@ export default class IPCServer {
 
       socket.on('error', e => {
         log('socket error', e);
+		//console.log('socket error', e);
       });
 
       socket.on('close', e => {
         log('socket closed', e);
+		//console.log('socket closed', e);
         this.handlers.close(socket);
       });
 
@@ -235,6 +248,7 @@ export default class IPCServer {
       socket._send = socket.send;
       socket.send = msg => {
         log('sending', msg);
+		//console.log('sending', msg);
         socket.write(encode(Types.FRAME, msg));
       };
 
@@ -246,6 +260,9 @@ export default class IPCServer {
 
   onMessage(socket, msg) {
     log('message', msg);
+	//console.log('message', msg);
     this.handlers.message(socket, msg);
   }
 }
+
+module.exports = IPCServer
