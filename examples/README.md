@@ -5,3 +5,6 @@ Simple mod for using the arRPC Bridge WebSocket server for setting RPC status (t
 
 ## [Electron](electron)
 Example usage for within an Electron client.
+
+## [Userscript](arRPC.user.js)
+bridge_mod.js turned into a Userscript.
