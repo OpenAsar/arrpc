@@ -31,7 +31,7 @@ Rich Presence (RPC) is the name for how some apps can talk to Discord desktop on
 3. `npm install`
 4. Run server with `node src`
 
-### Auto-startup server (Optional)
+### Auto-startup server (Optional, Windows)
 1. Have NodeJS >=18 installed, LTS preferred
 2. Clone the Github repo in `C:\` as `arrpc` (`C:\arrpc`)
 3. `npm install`
