@@ -31,6 +31,23 @@ Rich Presence (RPC) is the name for how some apps can talk to Discord desktop on
 3. `npm install`
 4. Run server with `node src`
 
+### Auto-startup server (Optional)
+1. Have NodeJS >=18 installed, LTS preferred
+2. Clone the Github repo in `C:\` as `arrpc` (`C:\arrpc`)
+3. `npm install`
+4. Download latest release (not pre-release) [nssm](https://nssm.cc/download)
+5. Unzip `nssm-2.24.zip`
+6. Grab `win32/nssm.exe` into `C:\arrpc`
+7. Open Command Prompt or Powershell and type `.\nssm.exe install arRPC`
+8. Fill `Path` with absolute path to `node.exe` (by default, it is `C:\Program FIles\nodejs\node.exe`. See screenshot below)
+9. Fill `Startup directory` with `C:\arrpc`
+10. FIll `Arguments` with `src` <br> ![arrpc-auto-server #1](assets/arrpc-auto-server-1.png)
+11. Switch to "Details" tab and fill `Display Name` with `arRPC` (see screenshot below) ![arrpc-auto-server #2](assets/arrpc-auto-server-2.png)
+12. Click "Install service`
+13. Open Task Manager by pressing `Ctrl + Shift + Esc`
+14. Open `Services` tab and search for "arRPC"
+15. Right click on "arRPC" and click `Start`
+
 ### Web
 #### No Mods
 1. Get [the arRPC server running](#server-required)
