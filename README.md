@@ -43,7 +43,7 @@ Rich Presence (RPC) is the name for how some apps can talk to Discord desktop on
 9. Fill `Startup directory` with `C:\arrpc`
 10. FIll `Arguments` with `src` <br> ![arrpc-auto-server #1](assets/arrpc-auto-server-1.png)
 11. Switch to "Details" tab and fill `Display Name` with `arRPC` (see screenshot below) ![arrpc-auto-server #2](assets/arrpc-auto-server-2.png)
-12. Click "Install service`
+12. Click "Install service"
 13. Open Task Manager by pressing `Ctrl + Shift + Esc`
 14. Open `Services` tab and search for "arRPC"
 15. Right click on "arRPC" and click `Start`
