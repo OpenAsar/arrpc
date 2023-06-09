@@ -18,7 +18,7 @@ export default class WSServer {
 
     let http, wss;
     while (port <= portRange[1]) {
-      log('trying port', port);
+      if (process.env.ARRPC_DEBUG) log('trying port', port);
 
       if (await new Promise(res => {
         http = createServer();
@@ -61,7 +61,7 @@ export default class WSServer {
 
     const origin = req.headers.origin ?? '';
 
-    log(`new connection! origin:`, origin, JSON.parse(JSON.stringify(params)));
+    if (process.env.ARRPC_DEBUG) log(`new connection! origin:`, origin, JSON.parse(JSON.stringify(params)));
 
     if (origin !== '' && ![ 'https://discord.com', 'https://ptb.discord.com', 'https://canary.discord.com/' ].includes(origin)) {
       log('disallowed origin', origin);
@@ -107,7 +107,7 @@ export default class WSServer {
 
     socket._send = socket.send;
     socket.send = msg => {
-      log('sending', msg);
+      if (process.env.ARRPC_DEBUG) log('sending', msg);
       socket._send(JSON.stringify(msg));
     };
 
@@ -115,7 +115,7 @@ export default class WSServer {
   }
 
   onMessage(socket, msg) {
-    log('message', JSON.parse(msg));
+    if (process.env.ARRPC_DEBUG) log('message', JSON.parse(msg));
     this.handlers.message(socket, JSON.parse(msg));
   }
 }
