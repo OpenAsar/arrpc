@@ -128,7 +128,7 @@ const socketIsAvailable = async socket => {
 
   const outcome = await possibleOutcomes;
   stop();
-  log('checked if socket is available:', outcome === true, outcome === true ? '' : `- reason: ${outcome}`);
+  if (process.env.ARRPC_DEBUG) log('checked if socket is available:', outcome === true, outcome === true ? '' : `- reason: ${outcome}`);
 
   return outcome === true;
 };
@@ -141,7 +141,7 @@ const getAvailableSocket = async (tries = 0) => {
   const path = SOCKET_PATH + '-' + tries;
   const socket = createConnection(path);
 
-  log('checking', path);
+  if (process.env.ARRPC_DEBUG) log('checking', path);
 
   if (await socketIsAvailable(socket)) {
     if (platform !== 'win32') try { unlinkSync(path); } catch { }
@@ -193,7 +193,7 @@ export default class IPCServer {
     });
 
     socket.once('handshake', params => {
-      log('handshake:', params);
+      if (process.env.ARRPC_DEBUG) log('handshake:', params);
 
       const ver = parseInt(params.v ?? 1);
       const clientId = params.client_id ?? '';
@@ -234,7 +234,7 @@ export default class IPCServer {
 
       socket._send = socket.send;
       socket.send = msg => {
-        log('sending', msg);
+        if (process.env.ARRPC_DEBUG) log('sending', msg);
         socket.write(encode(Types.FRAME, msg));
       };
 
@@ -245,7 +245,7 @@ export default class IPCServer {
   }
 
   onMessage(socket, msg) {
-    log('message', msg);
+    if (process.env.ARRPC_DEBUG) log('message', msg);
     this.handlers.message(socket, msg);
   }
 }
