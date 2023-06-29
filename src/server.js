@@ -121,15 +121,23 @@ export default class RPCServer extends EventEmitter {
       case 'GUILD_TEMPLATE_BROWSER':
       case 'INVITE_BROWSER':
         const { code } = args;
-        socket.send({
-          cmd,
-          data: {
-            code
-          },
-          nonce
-        });
 
-        this.emit(cmd === 'INVITE_BROWSER' ? 'invite' : 'guild-template', code);
+        const isInvite = cmd === 'INVITE_BROWSER';
+        const callback = (isValid = true) => {
+          socket.send({
+            cmd,
+            data: isValid
+              ? { code }
+              : { 
+                code: isInvite ? 4011 : 4017,
+                message: `Invalid ${isInvite ? 'invite' : 'guild template'} id: ${code}`
+              },
+            evt: isValid ? null : 'ERROR',
+            nonce
+          });
+        }
+
+        this.emit(isInvite ? 'invite' : 'guild-template', code, callback);
         break;
 
       case 'DEEP_LINK':
