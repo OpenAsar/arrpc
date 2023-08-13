@@ -1,5 +1,15 @@
 # arRPC Changelog
 
+## v3.2.0 [13-08-2023]
+- **Added callback to invite events API.**
+- **Updated detectable database with latest from Discord.**
+- **Fixed some libraries not working due to not calling back on activity clear.**
+- **Fixed refusing connections from Canary web.**
+- **Disabled most logging by default.**
+
+## v3.1.0 [02-02-2023]
+- **Added Linux process scanning.** Now scans for detectable Linux games on Linux too.
+
 ## v3.0.0 [26-11-2022]
 - **Added Process Scanning.** Now scans for detectable/verified games and tells Discord the app, allowing process detection whilst maintaining privacy (Discord does not see any/all processes, just the name and app ID).
 - **Fixed RPC not fully working with more apps/libraries.** Now responds with a mock/fake arRPC user and the proper config, replies with confirmation, and supports blank activites fully.
