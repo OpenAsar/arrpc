@@ -19,5 +19,8 @@
   "dependencies": {
     "ws": "^8.11.0"
   },
-  "type": "module"
+  "type": "module",
+  "bin": {
+    "arrpc": "src/index.js"
+  }
 }
