@@ -25,11 +25,37 @@ Rich Presence (RPC) is the name for how some apps can talk to Discord desktop on
 
 ## Usage
 
-### Server (**REQUIRED**)
-1. Have latest (>=18) Node installed
-2. Clone GitHub repo
-3. `npm install`
-4. Run server with `node src`
+#### Server (**REQUIRED**)
+
+1. Install dependencies (Node >+18, below are commands for Node 20 installation, replace 20 for 18 if needed)
+###### [RedHat Derivatives, Fedora, Nobara, etc (yum)](https://github.com/nodesource/distributions#supported-versions-1)
+```
+sudo yum install https://rpm.nodesource.com/pub_20.x/nodistro/repo/nodesource-release-nodistro-1.noarch.rpm -y
+sudo yum install nodejs -y --setopt=nodesource-nodejs.module_hotfixes=1
+```
+###### [Debian and derivatives, Ubuntu, Mint, PopOS, etc (apt)](https://github.com/nodesource/distributions#supported-versions)
+```
+sudo apt-get update
+sudo apt-get install -y ca-certificates curl gnupg
+sudo mkdir -p /etc/apt/keyrings
+curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
+NODE_MAJOR=20
+echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list
+sudo apt-get update
+sudo apt-get install nodejs -y
+```
+
+2.  Clone repo and install
+```
+git clone https://github.com/OpenAsar/arrpc.git
+cd ./arrpc
+npm install
+```
+
+3. Run server 
+```
+node src
+```
 
 ### Web
 #### No Mods
