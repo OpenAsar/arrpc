@@ -30,7 +30,6 @@ Rich Presence (RPC) is the name for how some apps can talk to Discord desktop on
 1. Install dependencies (Git, Node >=18, below are commands for Node 20 installation, replace 20 for 18 if needed)
 ###### [RedHat and derivatives, Fedora, Nobara, etc (yum)](https://github.com/nodesource/distributions#supported-versions-1)
 ```
-sudo dnf upgrade --refresh
 sudo yum install https://rpm.nodesource.com/pub_20.x/nodistro/repo/nodesource-release-nodistro-1.noarch.rpm git -y
 sudo yum install nodejs -y --setopt=nodesource-nodejs.module_hotfixes=1
 ```
