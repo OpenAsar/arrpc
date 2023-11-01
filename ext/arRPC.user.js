@@ -10,11 +10,8 @@
 // ==/UserScript==
 
 // https://github.com/OpenAsar/arrpc/blob/main/examples/bridge_mod.js
-(() => {
+window.addEventListener('load', (() => {
 let Dispatcher, lookupAsset, lookupApp, apps = {};
-const apiBase = window.GLOBAL_ENV.API_ENDPOINT + '/v' + window.GLOBAL_ENV.API_VERSION;
-// also only one letter function name, one letter arg name
-const asyncWithTwoArgsRegex = /^async\s+function\s.\(\s*\w+\s*,\s*\w+\s*\)/;
 
 const ws = new WebSocket('ws://127.0.0.1:1337'); // connect to arRPC bridge websocket
 ws.onmessage = async x => {
@@ -43,21 +40,26 @@ ws.onmessage = async x => {
       if (factories[id].toString().includes('getAssetImage: size must === [number, number] for Twitch')) {
         const mod = wpRequire(id);
 
-        const _lookupAsset = Object.values(mod).find(e => typeof e === "function" &&
-                                                     // two heuristics to detect fetchAssetIds
-                                                    (e.toString().includes("APPLICATION_ASSETS_FETCH_SUCCESS")
-                                                    || asyncWithTwoArgsRegex.test(e.toString())
-                                                    )
-        );
-        lookupAsset = async (appId, name) => (await _lookupAsset(appId, [ name, undefined ]))[0];
-
-        break;
+        // fetchAssetIds
+        const _lookupAsset = Object.values(mod).find(e => typeof e === "function" && e.toString().includes("APPLICATION_ASSETS_FETCH_SUCCESS"));
+        if (_lookupAsset) lookupAsset = async (appId, name) => (await _lookupAsset(appId, [ name, undefined ]))[0];
       }
+      if (lookupAsset) break;
     }
 
-    lookupApp = async appId => {
-      const res = await fetch(`${apiBase}/oauth2/applications/${appId}/rpc`);
-      return res.json();
+    for (const id in factories) {
+      if (factories[id].toString().includes("APPLICATION_RPC")) {
+        const mod = wpRequire(id);
+
+        // fetchApplicationsRPC
+        const _lookupApp = Object.values(mod).find(e => typeof e === "function" && e.toString().includes(",coverImage:"));
+        if (_lookupApp) lookupApp = async appId => {
+          let socket = {};
+          await _lookupApp(socket, appId);
+          return socket.application;
+        };
+      }
+      if (lookupApp) break;
     }
   }
 
@@ -65,7 +67,7 @@ ws.onmessage = async x => {
   if (msg.activity?.assets?.small_image) msg.activity.assets.small_image = await lookupAsset(msg.activity.application_id, msg.activity.assets.small_image);
 
   // prevent errors when activity is null and let activity stop
-  if(msg.activity) {
+  if (msg.activity) {
     const appId = msg.activity.application_id;
     if (!apps[appId]) apps[appId] = await lookupApp(appId);
 
@@ -75,5 +77,4 @@ ws.onmessage = async x => {
 
   Dispatcher.dispatch({ type: "LOCAL_ACTIVITY_UPDATE", ...msg }); // set RPC status
 };
-})();
-
+}));
