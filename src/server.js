@@ -22,7 +22,8 @@ export default class RPCServer extends EventEmitter {
 
     this.ipc = await new IPCServer(handlers);
     this.ws = await new WSServer(handlers);
-    this.process = await new ProcessServer(handlers);
+
+    if (!process.argv.includes('--no-process-scanning') && !process.env.ARRPC_NO_PROCESS_SCANNING) this.process = await new ProcessServer(handlers);
 
     return this;
   })(); }
@@ -82,7 +83,7 @@ export default class RPCServer extends EventEmitter {
             evt: null,
             nonce
           });
-          
+
           return this.emit('activity', {
             activity: null,
             pid,
@@ -138,7 +139,7 @@ export default class RPCServer extends EventEmitter {
             cmd,
             data: isValid
               ? { code }
-              : { 
+              : {
                 code: isInvite ? 4011 : 4017,
                 message: `Invalid ${isInvite ? 'invite' : 'guild template'} id: ${code}`
               },
