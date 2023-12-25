@@ -16,6 +16,8 @@ export default class ProcessServer {
 
     this.scan = this.scan.bind(this);
 
+    this.processes = [];
+
     this.scan();
     setInterval(this.scan, 5000);
 
@@ -24,12 +26,17 @@ export default class ProcessServer {
 
   async scan() {
     const startTime = performance.now();
-    const processes = await Native.getProcesses();
     const ids = [];
+
+    if (process.platform == 'linux') {
+      this.processes = await Native.getProcesses(this.processes);
+    } else {
+      this.processes = await Native.getProcesses();
+    }
 
     // log(`got processed in ${(performance.now() - startTime).toFixed(2)}ms`);
 
-    for (const [ pid, _path ] of processes) {
+    for (const [ pid, _path ] of this.processes) {
       const path = _path.toLowerCase().replaceAll('\\', '/');
       const toCompare = [ path.split('/').pop(), path.split('/').slice(-2).join('/') ];
 
