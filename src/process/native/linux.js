@@ -1,15 +1,8 @@
 import { readdir, readFile } from "fs/promises";
 
-export const getProcesses = async () => {
-  let pids = (await readdir("/proc")).filter((f) => !isNaN(+f));
-  return (
-    await Promise.all(
-      pids.map((pid) =>
-        readFile(`/proc/${pid}/cmdline`, "utf8").then(
-          (path) => [+pid, path.replace(/\0/g, "")],
-          () => {}
-        )
-      )
-    )
-  ).filter((x) => x);
-};
+export const getProcesses = async () => (await Promise.all(
+  (await readdir("/proc")).map(pid =>
+    (+pid > 0) && readFile(`/proc/${pid}/cmdline`, 'utf8')
+      .then(path => [+pid, path.replaceAll('0', '')], () => 0)
+  )
+)).filter(x => x);
