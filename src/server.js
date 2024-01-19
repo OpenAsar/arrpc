@@ -32,6 +32,7 @@ export default class RPCServer extends EventEmitter {
     socket.send({
       cmd: 'DISPATCH',
       evt: 'READY',
+      nonce: 0,
 
       data: {
         v: 1,
