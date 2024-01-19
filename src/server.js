@@ -137,12 +137,10 @@ export default class RPCServer extends EventEmitter {
         const callback = (isValid = true) => {
           socket.send({
             cmd,
-            data: isValid
-              ? { code }
-              : {
-                code: isInvite ? 4011 : 4017,
-                message: `Invalid ${isInvite ? 'invite' : 'guild template'} id: ${code}`
-              },
+            data: isValid ? { code } : {
+              code: isInvite ? 4011 : 4017,
+              message: `Invalid ${isInvite ? 'invite' : 'guild template'} id: ${code}`
+            },
             evt: isValid ? null : 'ERROR',
             nonce
           });
