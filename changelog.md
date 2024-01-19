@@ -1,5 +1,10 @@
 # arRPC Changelog
 
+## v3.3.0 [19-01-2024]
+- **Rewrote Linux game detection.** It should be more reliable and optimized now. Thanks to @rniii and @0xk1f0 for PRs.
+- **Fixed bug which broke a community Rust SDK.**
+- **Updated game database.**
+
 ## v3.2.0 [13-08-2023]
 - **Added callback to invite events API.**
 - **Updated detectable database with latest from Discord.**
