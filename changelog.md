@@ -1,5 +1,8 @@
 # arRPC Changelog
 
+## v3.3.1 [13-02-2024]
+- Fixed a bug crashing some RPC libraries.
+
 ## v3.3.0 [19-01-2024]
 - **Rewrote Linux game detection.** It should be more reliable and optimized now. Thanks to @rniii and @0xk1f0 for PRs.
 - **Fixed bug which broke a community Rust SDK.**
