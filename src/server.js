@@ -123,7 +123,12 @@ export default class RPCServer extends EventEmitter {
 
         socket.send?.({
           cmd,
-          data: null,
+          data: {
+            ...activity,
+            name: "",
+            application_id: socket.clientId,
+            type: 0
+          },
           evt: null,
           nonce
         });
