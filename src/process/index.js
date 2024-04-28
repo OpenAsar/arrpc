@@ -1,7 +1,12 @@
 const rgb = (r, g, b, msg) => `\x1b[38;2;${r};${g};${b}m${msg}\x1b[0m`;
 const log = (...args) => console.log(`[${rgb(88, 101, 242, 'arRPC')} > ${rgb(237, 66, 69, 'process')}]`, ...args);
 
-import DetectableDB from "./detectable.json" assert { type: "json" };
+import fs from 'node:fs';
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const DetectableDB = JSON.parse(fs.readFileSync(join(__dirname, 'detectable.json'), 'utf8'));
 
 import * as Natives from './native/index.js';
 const Native = Natives[process.platform];
@@ -23,7 +28,7 @@ export default class ProcessServer {
   }
 
   async scan() {
-    const startTime = performance.now();
+    // const startTime = performance.now();
     const processes = await Native.getProcesses();
     const ids = [];
 
@@ -58,7 +63,7 @@ export default class ProcessServer {
             log('detected game!', name);
             timestamps[id] = Date.now();
           }
-          
+
           // Resending this on evry scan is intentional, so that in the case that arRPC scans processes before Discord, existing activities will be sent
           this.handlers.message({
             socketId: id
@@ -83,7 +88,7 @@ export default class ProcessServer {
       if (!ids.includes(id)) {
         log('lost game!', names[id]);
         delete timestamps[id];
-        
+
         this.handlers.message({
           socketId: id
         }, {
