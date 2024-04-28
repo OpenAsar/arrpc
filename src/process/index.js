@@ -52,7 +52,7 @@ export default class ProcessServer {
         if (executables?.some(x => {
           if (x.is_launcher) return false;
           if (x.name[0] === '>' ? x.name.substring(1) !== toCompare[0] : !toCompare.some(y => x.name === y)) return false;
-          if (x.arguments) return args.join(" ").indexOf(x.arguments) > -1;
+          if (args && x.arguments) return args.join(" ").indexOf(x.arguments) > -1;
           return true;
         })) {
           names[id] = name;
