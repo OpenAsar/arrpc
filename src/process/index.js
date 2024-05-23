@@ -52,7 +52,7 @@ export default class ProcessServer {
       for (const { executables, id, name } of DetectableDB) {
         if (executables?.some(x => {
           if (x.is_launcher) return false;
-          if (x.name[0] === '>' ? x.name.substring(1) !== toCompare[0] : !toCompare.some(y => x.name === y || `${cwdPath}/${y}`.includes(x.name))) return false;
+          if (x.name[0] === '>' ? x.name.substring(1) !== toCompare[0] : !toCompare.some(y => x.name === y || `${cwdPath}/${y}`.includes(`/${x.name}`))) return false;
           if (args && x.arguments) return args.join(" ").indexOf(x.arguments) > -1;
           return true;
         })) {
