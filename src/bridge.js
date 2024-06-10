@@ -10,7 +10,13 @@ export const send = msg => {
   wss.clients.forEach(x => x.send(JSON.stringify(msg)));
 };
 
-const port = 1337;
+let port = 1337;
+if (process.env.ARRPC_BRIDGE_PORT) {
+  port = parseInt(process.env.ARRPC_BRIDGE_PORT);
+  if (isNaN(port)) {
+    throw new Error('invalid port');
+  }
+}
 const wss = new WebSocketServer({ port });
 
 wss.on('connection', socket => {
