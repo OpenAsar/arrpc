@@ -77,10 +77,12 @@ export default class RPCServer extends EventEmitter {
         // If it works - it works
         socket.send?.({
           cmd,
-          data: {code: 1000},
-          evt: "ERROR",
+          data: {
+            code: 1000
+          },
+          evt: 'ERROR',
           nonce
-        })
+        });
         break;
 
       case 'SET_ACTIVITY':
