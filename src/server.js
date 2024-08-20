@@ -73,6 +73,18 @@ export default class RPCServer extends EventEmitter {
     this.emit('message', { socket, cmd, args, nonce });
 
     switch (cmd) {
+      case "CONNECTIONS_CALLBACK":
+        // If it works - it works
+        socket.send?.({
+          cmd,
+          data: {
+            code: 1000
+          },
+          evt: 'ERROR',
+          nonce
+        });
+        break;
+
       case 'SET_ACTIVITY':
         const { activity, pid } = args; // translate given parameters into what discord dispatch expects
 
