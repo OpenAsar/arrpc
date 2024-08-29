@@ -78,7 +78,9 @@ export const getProcesses = () => new Promise(res =>  {
     for(let i = 0; i < numProcesses; ++i) {
       if (processIds[i]) {
         let imageName = getProcessImageName(processIds[i])
-        out.push([processIds, imageName])
+        if( imageName != null ){
+          out.push([processIds, imageName])
+        }
       }
     }
   }
