@@ -28,7 +28,6 @@ const NtQuerySystemInformation = ntdll.func('NtQuerySystemInformation', 'int32',
 const SystemProcessIdInformation = 88; // SYSTEM_INFORMATION_CLASS enum value for SystemProcessIdInformation
 
 const STATUS_INFO_LENGTH_MISMATCH = 0xC0000004;
-const MAX_LENGTH = 9999
 const NT_SUCCESS = (status) => status >= 0;
 const NT_ERROR = (status) => status < 0;
 
@@ -57,7 +56,7 @@ const getProcessImageName = (pid) => {
       }
 
       if (NT_SUCCESS(result)) {
-        return buffer.subarray(0, MAX_LENGTH).toString('utf16le');
+        return buffer.subarray(0, buffer.length).toString('utf16le');
       }
 
       bufferSize *= 2;
