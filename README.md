@@ -75,3 +75,4 @@ Then just use apps with Discord RPC like normal and they *should* work!
 - [X] INVITE_BROWSER
 - [X] GUILD_TEMPLATE_BROWSER
 - [X] DEEP_LINK
+- [X] CONNECTIONS_CALLBACK 
