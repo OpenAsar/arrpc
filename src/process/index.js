@@ -35,7 +35,7 @@ export default class ProcessServer {
     // log(`got processed in ${(performance.now() - startTime).toFixed(2)}ms`);
 
     for (const [ pid, _path, args ] of processes) {
-      const path = _path.toLowerCase().replaceAll('\\', '/');
+      const path = _path.toLowerCase().replaceAll('\\', '/').replaceAll('\x00', '');
       const toCompare = [];
       const splitPath = path.split('/');
       for (let i = 1; i < splitPath.length; i++) {
