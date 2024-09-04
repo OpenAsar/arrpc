@@ -46,6 +46,7 @@ export default class ProcessServer {
         toCompare.push(p.replace('64', '')); // remove 64bit identifiers-ish
         toCompare.push(p.replace('.x64', ''));
         toCompare.push(p.replace('x64', ''));
+        toCompare.push(p.replace('_64', ''));
       }
 
       for (const { executables, id, name } of DetectableDB) {

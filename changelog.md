@@ -1,5 +1,11 @@
 # arRPC Changelog
 
+## v3.5.0 [30-08-2024]
+- The bridge port is now configurable via the `ARRPC_BRIDGE_PORT` environment variable. ([#96](https://github.com/OpenAsar/arrpc/pull/96))
+- Fixed some games by ignoring another 64 bit suffix. ([#107](https://github.com/OpenAsar/arrpc/pull/107))
+- Fixed some account connecting being broken by adding a workaround for `CONNECTIONS_CALLBACK`. ([#106](https://github.com/OpenAsar/arrpc/pull/106))
+- Updated Discord's game database to use the latest version.
+
 ## v3.4.0 [28-04-2024]
 - Linux process detection is now improved, thanks to [Sqaaakoi](https://github.com/Sqaaakoi). ([#75](https://github.com/OpenAsar/arrpc/pull/75))
 - Rewrote ready packet sent to applications so potential regressions from v3.3.1 should be fixed.
