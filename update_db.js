@@ -5,11 +5,14 @@ import { get } from 'https';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 
+import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const path = join(__dirname, 'src', 'process', 'detectable.json');
 
-const current = JSON.parse(readFileSync(path, 'utf8'));
+const current = require(path);
 
 const file = createWriteStream(path);
 get('https://discord.com/api/v9/applications/detectable', res => {
@@ -18,7 +21,7 @@ get('https://discord.com/api/v9/applications/detectable', res => {
   file.on('finish', () => {
     file.close();
 
-    const updated = JSON.parse(readFileSync(path, 'utf8'));
+    const updated = require(path);
     console.log('Updated detectable DB');
     console.log(`${current.length} -> ${updated.length} games (+${updated.length - current.length})`);
 

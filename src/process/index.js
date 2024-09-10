@@ -1,12 +1,10 @@
 const rgb = (r, g, b, msg) => `\x1b[38;2;${r};${g};${b}m${msg}\x1b[0m`;
 const log = (...args) => console.log(`[${rgb(88, 101, 242, 'arRPC')} > ${rgb(237, 66, 69, 'process')}]`, ...args);
 
-import fs from 'node:fs';
-import { dirname, join } from 'path';
-import { fileURLToPath } from 'url';
+import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const DetectableDB = JSON.parse(fs.readFileSync(join(__dirname, 'detectable.json'), 'utf8'));
+const DetectableDB = require('./detectable.json');
 
 import * as Natives from './native/index.js';
 const Native = Natives[process.platform];
