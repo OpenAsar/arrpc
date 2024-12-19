@@ -4,13 +4,33 @@ const log = (...args) => console.log(`[${rgb(88, 101, 242, 'arRPC')} > ${rgb(237
 import fs from 'node:fs';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
+import { get } from 'https';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const DetectableDB = JSON.parse(fs.readFileSync(join(__dirname, 'detectable.json'), 'utf8'));
+const databasePath = join(__dirname, 'detectable.json');
+
+async function getDatabase() {
+  return new Promise((resolve, reject) => {
+    get('https://discord.com/api/v9/applications/detectable', res => {
+      if (res.statusCode !== 200 )
+        reject(new Error(`http error: ${res.statusCode}`));
+
+      let data = '';
+      res.on('data', (chunk) => data += chunk);
+      res.on('end', () =>  {
+        try {
+          fs.writeFileSync(databasePath, JSON.stringify(JSON.parse(data)), 'utf8');
+          resolve();
+        } catch (err) {
+          reject(new Error(`failed to parse/write json: ${err}`));
+        }
+      });
+    });
+  });
+};
 
 import * as Natives from './native/index.js';
 const Native = Natives[process.platform];
-
 
 const timestamps = {}, names = {}, pids = {};
 export default class ProcessServer {
@@ -18,13 +38,33 @@ export default class ProcessServer {
     if (!Native) return; // log('unsupported platform:', process.platform);
 
     this.handlers = handlers;
+    this.DetectableDB = null;
 
     this.scan = this.scan.bind(this);
+    this.initializeDatabase().then(() => {
+      this.scan();
+      setInterval(this.scan, 5000);
+      log('started');
+    });
+  }
 
-    this.scan();
-    setInterval(this.scan, 5000);
-
-    log('started');
+  async initializeDatabase() {
+    log("initializing database")
+    if (fs.existsSync(databasePath)) {
+      // const DAY_MS = 1
+      const DAY_MS = 1000 * 60 * 60 * 24
+      if (new Date() - fs.statSync(databasePath).mtime < DAY_MS) {
+        this.DetectableDB = JSON.parse(fs.readFileSync(databasePath)); 
+        return
+      }
+    }
+  
+    await getDatabase()
+      .then(() => {
+        log('database retrieved successfully')
+        this.DetectableDB = JSON.parse(fs.readFileSync(databasePath));
+      })
+      .catch(error => {throw new Error(`Failed retrieving the database: ${error}`)});
   }
 
   async scan() {
@@ -49,7 +89,7 @@ export default class ProcessServer {
         toCompare.push(p.replace('_64', ''));
       }
 
-      for (const { executables, id, name } of DetectableDB) {
+      for (const { executables, id, name } of this.DetectableDB) {
         if (executables?.some(x => {
           if (x.is_launcher) return false;
           if (x.name[0] === '>' ? x.name.substring(1) !== toCompare[0] : !toCompare.some(y => x.name === y)) return false;
