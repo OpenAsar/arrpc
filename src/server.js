@@ -169,7 +169,7 @@ export default class RPCServer extends EventEmitter {
 
       case 'DEEP_LINK':
         const deep_callback = (success) => {
-          if (success) socket.send({ cmd, data: null, evt: null, nonce });
+          socket.send({ cmd, data: null, evt: success ? null : 'ERROR', nonce });
         }
         this.emit('link', args, deep_callback);
         break;
