@@ -34,11 +34,12 @@ export default class ProcessServer {
 
     // log(`got processed in ${(performance.now() - startTime).toFixed(2)}ms`);
 
-    for (const [ pid, _path, args ] of processes) {
+    for (const [ pid, _path, args, _cwdPath = '' ] of processes) {
       const path = _path.toLowerCase().replaceAll('\\', '/');
+      const cwdPath = _cwdPath.toLowerCase().replaceAll('\\', '/');
       const toCompare = [];
       const splitPath = path.split('/');
-      for (let i = 1; i < splitPath.length; i++) {
+      for (let i = 1; i < splitPath.length || i == 1; i++) {
         toCompare.push(splitPath.slice(-i).join('/'));
       }
 
@@ -52,7 +53,7 @@ export default class ProcessServer {
       for (const { executables, id, name } of DetectableDB) {
         if (executables?.some(x => {
           if (x.is_launcher) return false;
-          if (x.name[0] === '>' ? x.name.substring(1) !== toCompare[0] : !toCompare.some(y => x.name === y)) return false;
+          if (x.name[0] === '>' ? x.name.substring(1) !== toCompare[0] : !toCompare.some(y => x.name === y || `${cwdPath}/${y}`.includes(`/${x.name}`))) return false;
           if (args && x.arguments) return args.join(" ").indexOf(x.arguments) > -1;
           return true;
         })) {
