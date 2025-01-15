@@ -39,8 +39,8 @@ Run `npx arrpc` in a terminal. Make sure you have a modern (>=18) version of [No
 
 ### Custom Clients
 
-#### ArmCord
-ArmCord has arRPC specially integrated, just enable the option in it's settings (server not required)!
+#### ArmCord, Vesktop
+These clients have arRPC specially integrated, just enable the option in its settings (server not required)!
 
 #### Webcord
 1. Get [the arRPC server running](#server-required)
