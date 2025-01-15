@@ -4,7 +4,8 @@
   "description": "Open Discord RPC server for atypical setups",
   "main": "src/server.js",
   "scripts": {
-    "start": "node src"
+    "start": "node src",
+    "postinstall": "patch-package"
   },
   "repository": {
     "type": "git",
@@ -17,6 +18,8 @@
   },
   "homepage": "https://github.com/OpenAsar/arrpc#readme",
   "dependencies": {
+    "patch-package": "^8.0.0",
+    "threads": "^1.7.0",
     "ws": "^8.11.0"
   },
   "type": "module",
