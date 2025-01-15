@@ -1,0 +1,27 @@
+diff --git a/node_modules/threads/package.json b/node_modules/threads/package.json
+index c4ef123..9d9934f 100644
+--- a/node_modules/threads/package.json
++++ b/node_modules/threads/package.json
+@@ -24,18 +24,22 @@
+   "exports": {
+     ".": {
+       "require": "./dist/index.js",
++      "types": "./dist/index.d.ts",
+       "default": "./index.mjs"
+     },
+     "./observable": {
+       "require": "./observable.js",
++      "types": "./observable.d.ts",
+       "default": "./observable.mjs"
+     },
+     "./register": {
+       "require": "./register.js",
++      "types": "./register.d.ts",
+       "default": "./register.mjs"
+     },
+     "./worker": {
+       "require": "./worker.js",
++      "types": "./worker.d.ts",
+       "default": "./worker.mjs"
+     }
+   },
