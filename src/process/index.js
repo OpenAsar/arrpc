@@ -31,6 +31,7 @@ export default class ProcessServer {
     // const startTime = performance.now();
     const processes = await Native.getProcesses();
     const ids = [];
+    const cacheKeys = {};
 
     // log(`got processed in ${(performance.now() - startTime).toFixed(2)}ms`);
 
@@ -39,7 +40,8 @@ export default class ProcessServer {
       
       // the cache key includes every dependency of the DetectableDB scan
       const cacheKey = `${path}\0${args}`;
-      
+      cacheKeys[cacheKey] = true;
+
       var detected = [];
       if (cache[cacheKey] !== undefined) {
         detected = cache[cacheKey];
@@ -116,6 +118,23 @@ export default class ProcessServer {
           }
         });
       }
+    }
+
+    const globalCacheKeys = Object.keys(cache);
+    const currentCacheKeys = Object.keys(cacheKeys);
+    // log(`gc check: ${globalCacheKeys.length} > ${currentCacheKeys.length * 2.0}`);
+    if (globalCacheKeys.length > currentCacheKeys.length * 2.0) {
+      const beforeCount = Object.keys(cache).length;
+
+      for (const key in currentCacheKeys) {
+        delete globalCacheKeys[key];
+      }
+
+      for (const i in globalCacheKeys) {
+        delete cache[globalCacheKeys[i]];
+      }
+
+      log(`cache gc complete: ${beforeCount} -> ${Object.keys(cache).length}`);
     }
 
     // log(`finished scan in ${(performance.now() - startTime).toFixed(2)}ms`);
