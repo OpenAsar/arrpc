@@ -351,6 +351,11 @@
                 "is_launcher": false,
                 "name": "dota2.exe",
                 "os": "win32"
+            },
+            {
+                "is_launcher": false,
+                "name": "dota2",
+                "os": "linux"
             }
         ],
         "hook": true,
