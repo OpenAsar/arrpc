@@ -1564,6 +1564,12 @@
             {
                 "arguments": "-game hl2",
                 "is_launcher": false,
+                "name": "hl2_linux",
+                "os": "linux"
+            },
+            {
+                "arguments": "-game hl2",
+                "is_launcher": false,
                 "name": "hl2hl2.exe",
                 "os": "win32"
             }
