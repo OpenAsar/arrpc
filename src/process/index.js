@@ -4,13 +4,39 @@ const log = (...args) => console.log(`[${rgb(88, 101, 242, 'arRPC')} > ${rgb(237
 import fs from 'node:fs';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
+import { get } from 'https';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const DetectableDB = JSON.parse(fs.readFileSync(join(__dirname, 'detectable.json'), 'utf8'));
+const databasePath = join(__dirname, 'detectable.json');
+
+async function getDatabase(lastModified) {
+  const options = {
+    hostname: 'discord.com',
+    path: '/api/v9/applications/detectable',
+    headers: lastModified ? { 'If-Modified-Since': lastModified } : {}
+  }
+  return new Promise((resolve, reject) => {
+    get(options, res => {
+      if (res.statusCode === 304) return resolve(false); 
+      if (res.statusCode !== 200) return reject(new Error(`http code ${res.statusCode}`));
+
+      let data = '';
+      res.on('data', (chunk) => data += chunk);
+      res.on('error', (error) => reject(new Error(`error in data stream: ${error}`))); // abort without writing data 
+      res.on('end', () =>  {
+        try {
+          fs.writeFileSync(databasePath, JSON.stringify(JSON.parse(data)), 'utf8');
+          resolve(true);
+        } catch (err) {
+          reject(new Error(`failed retrieving the database: ${err}`));
+        }
+      });
+    });
+  });
+};
 
 import * as Natives from './native/index.js';
 const Native = Natives[process.platform];
-
 
 const timestamps = {}, names = {}, pids = {};
 export default class ProcessServer {
@@ -18,13 +44,34 @@ export default class ProcessServer {
     if (!Native) return; // log('unsupported platform:', process.platform);
 
     this.handlers = handlers;
+    this.DetectableDB = null;
 
     this.scan = this.scan.bind(this);
+    this.initializeDatabase().then(() => {
+      this.scan();
+      setInterval(this.scan, 5000);
+      log('started');
+    });
+  }
 
-    this.scan();
-    setInterval(this.scan, 5000);
-
-    log('started');
+  async initializeDatabase() {
+    log("initializing database")
+    let age;
+    try { age = fs.statSync(databasePath).mtime.toUTCString() } 
+    catch { age = null }
+  
+    await getDatabase(age)
+      .then(updated => {
+        if (updated) log('database updated successfully')
+      })
+      .catch(error => {log(`${error}.. continuing with old database`)});
+    
+    try {
+      this.DetectableDB = JSON.parse(fs.readFileSync(databasePath));
+    } catch (err) {
+      try { fs.unlinkSync(databasePath) } catch {} // try to detele in case the json is invalid
+      throw new Error(`could not load the database. aborting... ${err}`)
+    }
   }
 
   async scan() {
@@ -49,7 +96,7 @@ export default class ProcessServer {
         toCompare.push(p.replace('_64', ''));
       }
 
-      for (const { executables, id, name } of DetectableDB) {
+      for (const { executables, id, name } of this.DetectableDB) {
         if (executables?.some(x => {
           if (x.is_launcher) return false;
           if (x.name[0] === '>' ? x.name.substring(1) !== toCompare[0] : !toCompare.some(y => x.name === y)) return false;
