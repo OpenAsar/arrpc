@@ -9,20 +9,26 @@ import { get } from 'https';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const databasePath = join(__dirname, 'detectable.json');
 
-async function getDatabase() {
+async function getDatabase(lastModified) {
+  const options = {
+    hostname: 'discord.com',
+    path: '/api/v9/applications/detectable',
+    headers: lastModified ? { 'If-Modified-Since': lastModified } : {}
+  }
   return new Promise((resolve, reject) => {
-    get('https://discord.com/api/v9/applications/detectable', res => {
-      if (res.statusCode !== 200 )
-        reject(new Error(`http error: ${res.statusCode}`));
+    get(options, res => {
+      if (res.statusCode === 304) return resolve(false); 
+      if (res.statusCode !== 200) return reject(new Error(`http code ${res.statusCode}`));
 
       let data = '';
       res.on('data', (chunk) => data += chunk);
+      res.on('error', (error) => reject(new Error(`error in data stream: ${error}`))); // abort without writing data 
       res.on('end', () =>  {
         try {
           fs.writeFileSync(databasePath, JSON.stringify(JSON.parse(data)), 'utf8');
-          resolve();
+          resolve(true);
         } catch (err) {
-          reject(new Error(`failed to parse/write json: ${err}`));
+          reject(new Error(`failed retrieving the database: ${err}`));
         }
       });
     });
@@ -50,21 +56,22 @@ export default class ProcessServer {
 
   async initializeDatabase() {
     log("initializing database")
-    if (fs.existsSync(databasePath)) {
-      // const DAY_MS = 1
-      const DAY_MS = 1000 * 60 * 60 * 24
-      if (new Date() - fs.statSync(databasePath).mtime < DAY_MS) {
-        this.DetectableDB = JSON.parse(fs.readFileSync(databasePath)); 
-        return
-      }
-    }
+    let age;
+    try { age = fs.statSync(databasePath).mtime.toUTCString() } 
+    catch { age = null }
   
-    await getDatabase()
-      .then(() => {
-        log('database retrieved successfully')
-        this.DetectableDB = JSON.parse(fs.readFileSync(databasePath));
+    await getDatabase(age)
+      .then(updated => {
+        if (updated) log('database updated successfully')
       })
-      .catch(error => {throw new Error(`Failed retrieving the database: ${error}`)});
+      .catch(error => {log(`${error}.. continuing with old database`)});
+    
+    try {
+      this.DetectableDB = JSON.parse(fs.readFileSync(databasePath));
+    } catch (err) {
+      try { fs.unlinkSync(databasePath) } catch {} // try to detele in case the json is invalid
+      throw new Error(`could not load the database. aborting... ${err}`)
+    }
   }
 
   async scan() {
