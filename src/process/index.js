@@ -36,7 +36,7 @@ export default class ProcessServer {
 
     for (const [ pid, path, args ] of processes) {
       const splitPath = path.toLowerCase().replaceAll('\\', '/').split('/');
-      if ((/^[a-z]:$/.test(splitPath[0]) || splitPath[0] == "")) {
+      if ((splitPath[0] == 2 && splitPath[0].endsWith(':') || splitPath[0] == "")) {
         splitPath.shift(); // drop the first index if its a drive letter or empty
       }
 
