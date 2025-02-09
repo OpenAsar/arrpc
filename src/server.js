@@ -137,9 +137,11 @@ export default class RPCServer extends EventEmitter {
           cmd,
           data: {
             ...activity,
+            ...extra,
             name: "",
             application_id: socket.clientId,
-            type: 0
+            type: 0,
+            metadata
           },
           evt: null,
           nonce
