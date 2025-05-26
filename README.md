@@ -26,6 +26,7 @@ Rich Presence (RPC) is the name for how some apps can talk to Discord desktop on
 ## Usage
 
 ### Server
+First install `ws` dependency using `npx install ws`
 Run `npx arrpc` in a terminal. Make sure you have a modern (>=18) version of [Node.js](https://nodejs.org) installed.
 
 ### Web
