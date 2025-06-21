@@ -15,16 +15,18 @@ ws.onmessage = async x => {
 
     for (const id in modules) {
       const mod = modules[id].exports;
-      if (!mod?.__esModule) continue;
+      // if (!mod?.__esModule) continue;
 
       for (const prop in mod) {
-        if (!mod.hasOwnProperty(prop)) continue;
+        // if (!mod.hasOwnProperty(prop)) continue;
 
         const candidate = mod[prop];
-        if (candidate && candidate.register && candidate.wait) {
-          Dispatcher = candidate;
-          break;
-        }
+        try {
+          if (candidate && candidate.register && candidate.wait) {
+            Dispatcher = candidate;
+            break;
+          }
+        } catch {}
       }
 
       if (Dispatcher) break;
