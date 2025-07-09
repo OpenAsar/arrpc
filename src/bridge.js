@@ -25,9 +25,15 @@ if (process.env.LISTEN_FDS) { // Socket activation
   port = { fd: 3 };
 }
 const wss = new WebSocketServer({ port });
+let quitTimer;
 
 wss.on('connection', socket => {
   log('web connected');
+  if (quitTimer) {
+    log('client reconnected, not deactivating')
+    clearTimeout(quitTimer);
+    quitTimer = undefined;
+  }
 
   for (const id in lastMsg) { // catch up newly connected
     if (lastMsg[id].activity != null) send(lastMsg[id]);
@@ -35,6 +41,10 @@ wss.on('connection', socket => {
 
   socket.on('close', () => {
     log('web disconnected');
+    if (process.env.LISTEN_FDS && wss.clients.size === 0) {
+      log('last client disconnected, will deactivate in 30s');
+      quitTimer = setTimeout(() => process.exit(0), 30000);
+    }
   });
 });
 
