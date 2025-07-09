@@ -17,6 +17,13 @@ if (process.env.ARRPC_BRIDGE_PORT) {
     throw new Error('invalid port');
   }
 }
+if (process.env.LISTEN_FDS) { // Socket activation
+  const fds = parseInt(process.env.LISTEN_FDS);
+  if (fds !== 1) {
+    throw new Error(`got ${fds} LISTEN_FDS, expecting 1`);
+  }
+  port = { fd: 3 };
+}
 const wss = new WebSocketServer({ port });
 
 wss.on('connection', socket => {
