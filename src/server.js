@@ -169,8 +169,16 @@ export default class RPCServer extends EventEmitter {
 
       case 'DEEP_LINK':
         const deep_callback = (success) => {
-          socket.send({ cmd, data: null, evt: success ? null : 'ERROR', nonce });
+          socket.send({ cmd, data: success ? null : { code: 1001 }, evt: success ? null : 'ERROR', nonce });
         }
+
+        // Prevent Discord from staying in "Opening Discord App" loop-
+        // when going into shop/discovery menu
+        if (args.type === "SHOP" || args.type === "FEATURES") {
+          deep_callback(false)
+          break;
+        }
+
         this.emit('link', args, deep_callback);
         break;
     }
