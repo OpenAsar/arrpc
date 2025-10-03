@@ -30,11 +30,11 @@ Run `npx arrpc` in a terminal. Make sure you have a modern (>=18) version of [No
 
 ### Web
 #### No Mods
-1. Get [the arRPC server running](#server-required)
+1. Get [the arRPC server running](#server)
 2. With Discord open, run the content of [`examples/bridge_mod.js`](examples/bridge_mod.js) in Console (Ctrl+Shift+I).
 
 #### Vencord
-1. Get [the arRPC server running](#server-required)
+1. Get [the arRPC server running](#server)
 2. Just enable the `WebRichPresence (arRPC)` Vencord plugin!
 
 ### Custom Clients
@@ -43,7 +43,7 @@ Run `npx arrpc` in a terminal. Make sure you have a modern (>=18) version of [No
 These clients have arRPC specially integrated, just enable the option in its settings (server not required)!
 
 #### Webcord
-1. Get [the arRPC server running](#server-required)
+1. Get [the arRPC server running](#server)
 2. Disable the `Use built-in Content Security Policy` option in Advanced settings: ![image](https://user-images.githubusercontent.com/19228318/202926723-93b772fc-f37d-47d4-81fd-b11c5d4051e8.png)
 3. With Webcord open, run the content of [`examples/bridge_mod.js`](examples/bridge_mod.js) in the DevTools Console (Ctrl+Shift+I).
 
