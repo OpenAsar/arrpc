@@ -115,7 +115,11 @@ export default class WSServer {
   }
 
   onMessage(socket, msg) {
-    if (process.env.ARRPC_DEBUG) log('message', JSON.parse(msg));
-    this.handlers.message(socket, JSON.parse(msg));
+    try {
+      if (process.env.ARRPC_DEBUG) log('message', JSON.parse(msg));
+      this.handlers.message(socket, JSON.parse(msg));
+    } catch {
+      log("Invalid Payload!")
+    }
   }
 }
