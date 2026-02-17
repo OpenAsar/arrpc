@@ -31,6 +31,10 @@ const extraExecutablesById = new Map([
     "451540911172747284",
     [{ is_launcher: false, name: "bms_linux", os: "linux" }],
   ],
+  [
+    "1158877933042143272",
+    [{ is_launcher: false, name: "linuxsteamrt64/cs2", os: "linux" }],
+  ]
 ]);
 
 for (const entry of DetectableDBTemp) {
