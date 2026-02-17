@@ -27,6 +27,10 @@ const extraExecutablesById = new Map([
     "1257819671114289184",
     [{ is_launcher: false, name: "ZenlessZoneZero.exe", os: "win32" }],
   ],
+  [
+    "451540911172747284",
+    [{ is_launcher: false, name: "bms_linux", os: "linux" }],
+  ],
 ]);
 
 for (const entry of DetectableDBTemp) {
