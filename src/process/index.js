@@ -65,7 +65,7 @@ export default class ProcessServer {
             timestamps[id] = Date.now();
           }
 
-          // Resending this on evry scan is intentional, so that in the case that arRPC scans processes before Discord, existing activities will be sent
+          // Resending this on every scan is intentional, so that in the case that arRPC scans processes before Discord, existing activities will be sent
           this.handlers.message({
             socketId: id
           }, {
