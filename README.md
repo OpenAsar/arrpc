@@ -25,6 +25,7 @@ Rich Presence (RPC) is the name for how some apps can talk to Discord desktop on
 
 ## Installation
 ### Prerequirements
+- [Latest source download from Releases](https://github.com/OpenAsar/arrpc/releases/latest)
 - A modern version (**>=18**) of [Node.js](https://nodejs.org) must be installed.
 
 ### Starting The Server
