@@ -1,5 +1,8 @@
 # arRPC Changelog
 
+## v3.7.0 [30-03-2026]
+- Updated Discord's game database to latest version.
+ 
 ## v3.6.0 [28-09-2024]
 - Updated Discord's game database to use the latest version.
 - Updated dependencies to use the latest versions.
