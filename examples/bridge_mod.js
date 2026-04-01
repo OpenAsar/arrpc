@@ -2,6 +2,14 @@
 (() => {
 let Dispatcher, lookupAsset, lookupApp, apps = {};
 
+function getToken() {
+  	let a = [];
+  	webpackChunkdiscord_app.push([[0],,e=>Object.keys(e.c).find(t=>(t=e(t)?.default?.getToken?.())&&a.push(t))]);
+  	return a[0];
+   }
+
+const token = getToken()
+
 const ws = new WebSocket('ws://127.0.0.1:1337'); // connect to arRPC bridge websocket
 ws.onmessage = async x => {
   msg = JSON.parse(x.data);
@@ -14,36 +22,26 @@ ws.onmessage = async x => {
     const modules = wpRequire.c;
 
     for (const id in modules) {
-      const mod = modules[id].exports;
-      // if (!mod?.__esModule) continue;
+    const mod = modules[id].exports;
 
-      for (const prop in mod) {
-        // if (!mod.hasOwnProperty(prop)) continue;
-
+    for (const prop in mod) {
         const candidate = mod[prop];
         try {
-          if (candidate && candidate.register && candidate.wait) {
-            Dispatcher = candidate;
-            break;
-          }
-        } catch {}
-      }
-
-      if (Dispatcher) break;
+            if (candidate && candidate.register && candidate.wait) {
+                Dispatcher = candidate;
+                break;
+            }
+        } catch {
+            continue;
+        }
     }
 
+    if (Dispatcher) break;
+}
+
+   
     const factories = wpRequire.m;
-    for (const id in factories) {
-      if (factories[id].toString().includes('getAssetImage: size must === [number, number] for Twitch')) {
-        const mod = wpRequire(id);
-
-        // fetchAssetIds
-        const _lookupAsset = Object.values(mod).find(e => typeof e === 'function' && e.toString().includes('APPLICATION_ASSETS_FETCH_SUCCESS'));
-        if (_lookupAsset) lookupAsset = async (appId, name) => (await _lookupAsset(appId, [ name, undefined ]))[0];
-      }
-
-      if (lookupAsset) break;
-    }
+    
 
     for (const id in factories) {
       if (factories[id].toString().includes('APPLICATION_RPC(')) {
@@ -66,6 +64,52 @@ ws.onmessage = async x => {
     }
   }
 
+async function lookupAsset(id, d) {
+	const authHeaders = new Headers();
+	authHeaders.append("Authorization", token);
+
+	const uploadHeaders = new Headers();
+	uploadHeaders.append("Authorization", token);
+        uploadHeaders.append("content-type", "application/json");
+	  
+       const isUrl = string => {
+      try { return Boolean(new URL(string)); }
+      catch(e){ return false; }
+  }
+        if (isUrl(d)) {
+	     const response_upload = await fetch("https://discord.com/api/v9/applications/" + id + "/external-assets", {
+  		headers: uploadHeaders,
+                method: "POST",
+		body: JSON.stringify({ urls: [d] }),
+	     });
+
+	    data = await response_upload.json()
+            return "mp:" + data[0]["external_asset_path"]
+
+
+        }
+
+	const response = await fetch("https://discord.com/api/v9/oauth2/applications/" + id + "/assets?nocache=true", {
+  		headers: authHeaders,
+	});
+	
+	data = await response.json()
+        let trip = false
+        let iid = ''
+	
+	for (let i in data) {
+           let real = data[i]
+           if (trip) {
+             break
+           }
+           if (real["name"] == d) {
+             trip = true
+             iid = real["id"]
+           }
+        }
+	return iid
+    }
+	
   if (msg.activity?.assets?.large_image) msg.activity.assets.large_image = await lookupAsset(msg.activity.application_id, msg.activity.assets.large_image);
   if (msg.activity?.assets?.small_image) msg.activity.assets.small_image = await lookupAsset(msg.activity.application_id, msg.activity.assets.small_image);
 
