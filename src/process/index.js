@@ -18,6 +18,7 @@ DetectableDBTemp.push({
   name: "OBS",
 });
 
+// Reminder: executable names must be stored as lowercase as they are converted to such before matching against the database
 const extraExecutablesById = new Map([
   [
     "356943187589201930",
@@ -34,6 +35,10 @@ const extraExecutablesById = new Map([
   [
     "1158877933042143272",
     [{ is_launcher: false, name: "linuxsteamrt64/cs2", os: "linux" }],
+  ],
+  [
+    "1440129553036083341",
+    [{ is_launcher: false, name: "soulframe.x64.exe", os: "win32" }],
   ]
 ]);
 

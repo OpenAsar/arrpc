@@ -40,6 +40,7 @@ const keeps = {
     "/home/user/Games/Lutris/arknights-endfield/drive_c/Program Files/GRYPHLINK/games/EndField Game/Endfield.exe",
     "ZenlessZoneZero.exe",
     "obs.exe",
+    "Soulframe.x64.exe",
   ],
 };
 
