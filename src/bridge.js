@@ -17,10 +17,23 @@ if (process.env.ARRPC_BRIDGE_PORT) {
     throw new Error('invalid port');
   }
 }
+if (process.env.LISTEN_FDS) { // Socket activation
+  const fds = parseInt(process.env.LISTEN_FDS);
+  if (fds !== 1) {
+    throw new Error(`got ${fds} LISTEN_FDS, expecting 1`);
+  }
+  port = { fd: 3 };
+}
 const wss = new WebSocketServer({ port });
+let quitTimer;
 
 wss.on('connection', socket => {
   log('web connected');
+  if (quitTimer) {
+    log('client reconnected, not deactivating')
+    clearTimeout(quitTimer);
+    quitTimer = undefined;
+  }
 
   for (const id in lastMsg) { // catch up newly connected
     if (lastMsg[id].activity != null) send(lastMsg[id]);
@@ -28,6 +41,10 @@ wss.on('connection', socket => {
 
   socket.on('close', () => {
     log('web disconnected');
+    if (process.env.LISTEN_FDS && wss.clients.size === 0) {
+      log('last client disconnected, will deactivate in 30s');
+      quitTimer = setTimeout(() => process.exit(0), 30000);
+    }
   });
 });
 
