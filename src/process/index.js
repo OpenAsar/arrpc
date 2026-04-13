@@ -34,11 +34,14 @@ export default class ProcessServer {
 
     // log(`got processed in ${(performance.now() - startTime).toFixed(2)}ms`);
 
-    for (const [ pid, _path, args ] of processes) {
-      const path = _path.toLowerCase().replaceAll('\\', '/');
+    for (const [ pid, path, args ] of processes) {
+      const splitPath = path.toLowerCase().replaceAll('\\', '/').split('/');
+      if ((splitPath[0] == 2 && splitPath[0].endsWith(':') || splitPath[0] == "")) {
+        splitPath.shift(); // drop the first index if its a drive letter or empty
+      }
+
       const toCompare = [];
-      const splitPath = path.split('/');
-      for (let i = 1; i < splitPath.length; i++) {
+      for (let i = 0; i < splitPath.length; i++) {
         toCompare.push(splitPath.slice(-i).join('/'));
       }
 
