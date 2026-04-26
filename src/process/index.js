@@ -9,6 +9,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const DetectableDB = JSON.parse(fs.readFileSync(join(__dirname, 'detectable.json'), 'utf8'));
 
 import * as Natives from './native/index.js';
+import { createScanRunner } from './scan-runner.js';
 const Native = Natives[process.platform];
 
 
@@ -20,9 +21,10 @@ export default class ProcessServer {
     this.handlers = handlers;
 
     this.scan = this.scan.bind(this);
+    this.runScan = createScanRunner(this.scan);
 
-    this.scan();
-    setInterval(this.scan, 5000);
+    this.runScan();
+    setInterval(this.runScan, 5000);
 
     log('started');
   }
