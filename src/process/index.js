@@ -61,6 +61,7 @@ const IGNORE_RULES = {
     /webhelper/,
     /^\/tmp\//,
     /(\/bin\/|)dolphin$/, // KDE, not emulator
+    /^C:\\Windows/i,
   ],
   win32: [
     /^C:\\Windows/i,
