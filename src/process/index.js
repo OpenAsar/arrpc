@@ -5,12 +5,169 @@ import fs from 'node:fs';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const DetectableDB = JSON.parse(fs.readFileSync(join(__dirname, 'detectable.json'), 'utf8'));
+import DetectableDBTemp from "./detectable.json" with { type: "json" };
+DetectableDBTemp.push({
+  aliases: ["Obs"],
+  executables: [
+    { is_launcher: false, name: "obs", os: "linux" },
+    { is_launcher: false, name: "obs.exe", os: "win32" },
+    { is_launcher: false, name: "obs.app", os: "darwin" },
+  ],
+  hook: true,
+  id: "STREAMERMODE",
+  name: "OBS",
+});
 
-import * as Natives from './native/index.js';
+// Reminder: executable names must be stored as lowercase as they are converted to such before matching against the database
+const extraExecutablesById = new Map([
+  [
+    "356943187589201930",
+    [{ is_launcher: false, name: "dolphin-emu", os: "linux" }],
+  ],
+  [
+    "1257819671114289184",
+    [{ is_launcher: false, name: "ZenlessZoneZero.exe", os: "win32" }],
+  ],
+  [
+    "451540911172747284",
+    [{ is_launcher: false, name: "bms_linux", os: "linux" }],
+  ],
+  [
+    "1158877933042143272",
+    [{ is_launcher: false, name: "linuxsteamrt64/cs2", os: "linux" }],
+  ],
+  [
+    "1440129553036083341",
+    [{ is_launcher: false, name: "soulframe.x64.exe", os: "win32" }],
+  ]
+]);
+
+for (const entry of DetectableDBTemp) {
+  const extras = extraExecutablesById.get(entry.id);
+  if (extras) entry.executables.push(...extras);
+}
+const DetectableDB = DetectableDBTemp;
+
+import * as Natives from "./native/index.js";
+// Build a lookup map for Steam App IDs from third_party_skus
+const steamAppIdToGame = new Map();
+for (const entry of DetectableDB) {
+  if (!entry.third_party_skus) continue;
+  for (const sku of entry.third_party_skus) {
+    if (sku.distributor === 'steam' && sku.id) {
+      steamAppIdToGame.set(sku.id, entry);
+    }
+  }
+}
+// eslint-disable-next-line no-undef
 const Native = Natives[process.platform];
 
+const IGNORE_RULES = {
+  linux: [
+    /^\/proc\//,
+    /k(worker|softirq)/, // Linux kernel worker threads
+    /^\/(usr|)\/(bin|sbin|lib)\/(?!(dolphin-emu|obs))/,
+    /\/crashpad_handler$/,
+    /webhelper/,
+    /^\/tmp\//,
+    /(\/bin\/|)dolphin$/, // KDE, not emulator
+    /^C:\\Windows/i,
+  ],
+  win32: [
+    /^C:\\Windows/i,
+    (path) => path.includes("\\") && !path.includes("/"), // pure win path
+  ],
+};
+
+/** Check our rules to determine if a process should be ignored **/
+export function shouldIgnoreProcess(path, os) {
+  const rules = IGNORE_RULES[os] || [];
+  return rules.some((rule) =>
+    typeof rule === "function" ? rule(path) : rule.test(path),
+  );
+}
+
+// ------------------------ Refactor helpers -------------------------------
+/** Normalize a filesystem path for comparisons. */
+const normPath = (p = "") => String(p).toLowerCase().replaceAll("\\", "/");
+
+/** Strip common 64-bit suffixes from executable names. */
+const stripBitness = (s = "") => {
+  const bitness_suffixes = [".x86_64", ".x64", "_64", "64"];
+  for (const suf of bitness_suffixes) {
+    if (s.endsWith(suf)) return s.slice(0, -suf.length);
+  }
+  return s;
+};
+
+/**
+ * Build a compact set of candidates we will try to match against the DB.
+ * Examples returned: ['eldenring.exe', 'eldenring', 'steamapps/common/eldenring.exe']
+ */
+const buildCandidates = (rawPath, cwdPath) => {
+  const out = new Set();
+  const p = normPath(rawPath);
+
+  // Drop CLI args if present (e.g., "C:/Games/foo/bar.exe --flag ...")
+  const noArgs = p.includes(" --") ? p.split(" --")[0] : p;
+  const base = noArgs.slice(noArgs.lastIndexOf("/") + 1);
+
+  out.add(stripBitness(base));
+
+  // For Windows-style exe paths, include the last 2 segments to catch DB entries
+  // We also need to match Linux Native executables, since we swap the suffix later for comparison
+  if (noArgs.includes(".exe") || noArgs.includes(".x86_64")) {
+    const last2 = noArgs.split("/").slice(-2).join("/");
+    out.add(stripBitness(last2));
+  }
+
+  // Also include a cwd-anchored variant to help path.includes matches
+  if (cwdPath) out.add(`${normPath(cwdPath)}/${stripBitness(base)}`);
+
+  // Add exe-less variant if present
+  if (base.endsWith(".exe")) out.add(base.replace(/\.exe$/, ""));
+
+  return Array.from(out);
+};
+
+/**
+ * Decide whether a known executable entry matches the running process.
+ * Mirrors legacy behavior but is easier to read & extend.
+ */
+const matchesKnownExe = (known, candidates, cwdPath, argsStr) => {
+  if (!known || known.is_launcher) return false;
+  const kname = known.name || "";
+  const needsArgs = Boolean(known.arguments);
+  const hasReqArgs =
+    !needsArgs || (argsStr && argsStr.includes(known.arguments));
+
+  // Special '>' syntax: require exact match to the first candidate
+  if (kname[0] === ">") {
+    return candidates[0] === kname.slice(1) && hasReqArgs;
+  }
+
+  // Try direct name and common variants across all candidates
+  for (const cand of candidates) {
+    const running = cand;
+    if (kname === running) return hasReqArgs;
+    if (kname === `${running}.exe`) return hasReqArgs;
+    if (kname === running.replace(/\.exe$/, "")) return hasReqArgs;
+    if (String(running).includes(`/${kname}`)) return hasReqArgs; // handles cwd + filename
+    if (kname === running.replace(/\.x86_64$/, ".exe")) return hasReqArgs;
+  }
+
+  // Last resort: allow arg-only matches (previous behavior)
+  return needsArgs && hasReqArgs;
+};
+
+/** Extract Steam App ID from command line arguments. */
+const getSteamAppIdFromArgs = (argsStr) => {
+  if (!argsStr) return null;
+  // Match steam_app_id= or SteamLaunch AppId= patterns
+  const match = argsStr.match(/(?:steam_app_id|SteamLaunch\s+AppId)=(\d+)/i);
+  return match ? match[1] : null;
+};
+// -------------------------------------------------------------------------
 
 const timestamps = {}, names = {}, pids = {};
 export default class ProcessServer {
@@ -34,28 +191,21 @@ export default class ProcessServer {
 
     // log(`got processed in ${(performance.now() - startTime).toFixed(2)}ms`);
 
-    for (const [ pid, _path, args ] of processes) {
-      const path = _path.toLowerCase().replaceAll('\\', '/');
-      const toCompare = [];
-      const splitPath = path.split('/');
-      for (let i = 1; i < splitPath.length; i++) {
-        toCompare.push(splitPath.slice(-i).join('/'));
-      }
-
-      for (const p of toCompare.slice()) { // add more possible tweaked paths for less false negatives
-        toCompare.push(p.replace('64', '')); // remove 64bit identifiers-ish
-        toCompare.push(p.replace('.x64', ''));
-        toCompare.push(p.replace('x64', ''));
-        toCompare.push(p.replace('_64', ''));
-      }
+    // TODO: Make sure this works on windows (see in src/process/win32.js)
+    for (const { pid, exe: _path, args, cwd: _cwdPath = "" } of processes) {
+      if (shouldIgnoreProcess(_path, process.platform)) continue;
+      const argsStr = Array.isArray(args) ? args.join(" ") : "";
+      const path = _path.toLowerCase().replaceAll("\\", "/");
+      const cwdPath = _cwdPath.toLowerCase().replaceAll("\\", "/");
+      const toCompare = buildCandidates(path, cwdPath);
 
       for (const { executables, id, name } of DetectableDB) {
-        if (executables?.some(x => {
-          if (x.is_launcher) return false;
-          if (x.name[0] === '>' ? x.name.substring(1) !== toCompare[0] : !toCompare.some(y => x.name === y)) return false;
-          if (args && x.arguments) return args.join(" ").indexOf(x.arguments) > -1;
-          return true;
-        })) {
+        if (!executables || !Array.isArray(executables) || executables.length === 0) continue;
+
+        const matched = executables.some((k) =>
+          matchesKnownExe(k, toCompare, cwdPath, argsStr),
+        );
+        if (matched) {
           names[id] = name;
           pids[id] = pid;
 
@@ -68,19 +218,51 @@ export default class ProcessServer {
           // Resending this on every scan is intentional, so that in the case that arRPC scans processes before Discord, existing activities will be sent
           this.handlers.message({
             socketId: id
-          }, {
-            cmd: 'SET_ACTIVITY',
-            args: {
-              activity: {
-                application_id: id,
-                name,
-                timestamps: {
+            }, {
+              cmd: 'SET_ACTIVITY',
+              args: {
+                activity: {
+                  application_id: id,
+                  name,
+                  timestamps: {
                   start: timestamps[id]
                 }
-              },
+                },
               pid
-            }
-          });
+              }
+            });
+        }
+      }
+
+      // Fallback: Check Steam App ID for games with empty executables
+      for (const [steamId, gameEntry] of steamAppIdToGame) {
+        if (getSteamAppIdFromArgs(argsStr) === steamId) {
+          names[gameEntry.id] = gameEntry.name;
+          pids[gameEntry.id] = pid;
+
+          ids.push(gameEntry.id);
+          if (!timestamps[gameEntry.id]) {
+            log('detected game!', gameEntry.name);
+            timestamps[gameEntry.id] = Date.now();
+          }
+
+          // Resending this on every scan is intentional, so that in the case that arRPC scans processes before Discord, existing activities will be sent
+          this.handlers.message({
+            socketId: gameEntry.id
+            }, {
+              cmd: 'SET_ACTIVITY',
+              args: {
+                activity: {
+                  application_id: gameEntry.id,
+                  name: gameEntry.name,
+                  timestamps: {
+                  start: timestamps[gameEntry.id]
+                }
+                },
+              pid
+              }
+            });
+          break;
         }
       }
     }
@@ -91,14 +273,14 @@ export default class ProcessServer {
         delete timestamps[id];
 
         this.handlers.message({
-          socketId: id
-        }, {
-          cmd: 'SET_ACTIVITY',
-          args: {
-            activity: null,
-            pid: pids[id]
-          }
-        });
+            socketId: id
+          }, {
+            cmd: 'SET_ACTIVITY',
+            args: {
+              activity: null,
+              pid: pids[id]
+            }
+          });
       }
     }
 
