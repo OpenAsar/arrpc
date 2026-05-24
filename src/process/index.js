@@ -49,6 +49,16 @@ for (const entry of DetectableDBTemp) {
 const DetectableDB = DetectableDBTemp;
 
 import * as Natives from "./native/index.js";
+// Build a lookup map for Steam App IDs from third_party_skus
+const steamAppIdToGame = new Map();
+for (const entry of DetectableDB) {
+  if (!entry.third_party_skus) continue;
+  for (const sku of entry.third_party_skus) {
+    if (sku.distributor === 'steam' && sku.id) {
+      steamAppIdToGame.set(sku.id, entry);
+    }
+  }
+}
 // eslint-disable-next-line no-undef
 const Native = Natives[process.platform];
 
@@ -149,6 +159,14 @@ const matchesKnownExe = (known, candidates, cwdPath, argsStr) => {
   // Last resort: allow arg-only matches (previous behavior)
   return needsArgs && hasReqArgs;
 };
+
+/** Extract Steam App ID from command line arguments. */
+const getSteamAppIdFromArgs = (argsStr) => {
+  if (!argsStr) return null;
+  // Match steam_app_id= or SteamLaunch AppId= patterns
+  const match = argsStr.match(/(?:steam_app_id|SteamLaunch\s+AppId)=(\d+)/i);
+  return match ? match[1] : null;
+};
 // -------------------------------------------------------------------------
 
 const timestamps = {}, names = {}, pids = {};
@@ -182,13 +200,12 @@ export default class ProcessServer {
       const toCompare = buildCandidates(path, cwdPath);
 
       for (const { executables, id, name } of DetectableDB) {
-        if (!executables || !Array.isArray(executables)) continue;
+        if (!executables || !Array.isArray(executables) || executables.length === 0) continue;
 
         const matched = executables.some((k) =>
           matchesKnownExe(k, toCompare, cwdPath, argsStr),
         );
-        if (!matched) continue;
-        {
+        if (matched) {
           names[id] = name;
           pids[id] = pid;
 
@@ -214,6 +231,38 @@ export default class ProcessServer {
               pid
               }
             });
+        }
+      }
+
+      // Fallback: Check Steam App ID for games with empty executables
+      for (const [steamId, gameEntry] of steamAppIdToGame) {
+        if (getSteamAppIdFromArgs(argsStr) === steamId) {
+          names[gameEntry.id] = gameEntry.name;
+          pids[gameEntry.id] = pid;
+
+          ids.push(gameEntry.id);
+          if (!timestamps[gameEntry.id]) {
+            log('detected game!', gameEntry.name);
+            timestamps[gameEntry.id] = Date.now();
+          }
+
+          // Resending this on every scan is intentional, so that in the case that arRPC scans processes before Discord, existing activities will be sent
+          this.handlers.message({
+            socketId: gameEntry.id
+            }, {
+              cmd: 'SET_ACTIVITY',
+              args: {
+                activity: {
+                  application_id: gameEntry.id,
+                  name: gameEntry.name,
+                  timestamps: {
+                  start: timestamps[gameEntry.id]
+                }
+                },
+              pid
+              }
+            });
+          break;
         }
       }
     }
