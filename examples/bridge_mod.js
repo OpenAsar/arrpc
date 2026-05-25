@@ -18,13 +18,15 @@ const getWebpackRequire = () => {
   const reqs = [];
   const seen = new Set();
 
-  window.webpackChunkdiscord_app.push([[ Symbol() ], {}, req => {
+  const chunk = unsafeWindow.webpackChunkdiscord_app || window.webpackChunkdiscord_app || webpackChunkdiscord_app;
+
+  chunk.push([[ Symbol() ], {}, req => {
     if (req && !seen.has(req)) {
       seen.add(req);
       reqs.push(req);
     }
   }]);
-  window.webpackChunkdiscord_app.pop();
+  chunk.pop();
 
   const hasSource = (req, ...needles) => {
     for (const id in req?.m) {
@@ -101,11 +103,11 @@ ws.onmessage = async x => {
     if (!Dispatcher) {
       const wpRequire = getWebpackRequire();
 
-      Dispatcher = findInCache(wpRequire, candidate =>
-        candidate &&
-        typeof candidate.dispatch === 'function' &&
-        typeof candidate.subscribe === 'function'
-      );
+      Dispatcher = findInCache(wpRequire, candidate => {
+        return candidate &&
+          typeof candidate.dispatch === 'function' &&
+          typeof candidate.subscribe === 'function';
+      }, 3);
 
       const assetMod = findModule(wpRequire, 'getAssetImage: size must === [');
       eachCandidate(assetMod, candidate => {
